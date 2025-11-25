@@ -24,5 +24,10 @@ namespace Kanban
         {
             InitializeComponent();
         }
+
+        private void Button_Click_AfegirTasca(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

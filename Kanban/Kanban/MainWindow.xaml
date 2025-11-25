@@ -6,11 +6,37 @@
         xmlns:local="clr-namespace:Kanban"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        <TextBlock Text="Welcome to the Kanban Board!" 
-                   HorizontalAlignment="Center" 
-                   VerticalAlignment="Center" 
-                   FontSize="24"/>
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
 
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        
+        <!-- Botó afegir tasca-->
+        <Button Grid.ColumnSpan="3" Content="Afegir Tasca" Height="35" Margin="0 0 0 10"
+                Click="Button_Click_AfegirTasca" />
+        
+        <!-- Columnes del Kanban -->
+        
+        <!--TO DO-->
+        <GroupBox Header="TO DO" Grid.Column="0" Grid.Row="1" Margin="5">
+            <ListBox Name="ToDoList" MouseDoubleClick="ToDoList_DoubleClick"/>
+        </GroupBox>
+
+        <!--DOING-->
+        <GroupBox Header="DOING" Grid.Column="1" Grid.Row="1" Margin="5">
+            <ListBox Name="DoingList" MouseDoubleClick="DoingList_DoubleClick"/>
+        </GroupBox>
+
+        <!--DONE-->
+        <GroupBox Header="DONE" Grid.Column="2" Grid.Row="1" Margin="5">
+            <ListBox Name="DoneList" MouseDoubleClick="DoneList_DoubleClick"/>
+        </GroupBox>
     </Grid>
 </Window>
