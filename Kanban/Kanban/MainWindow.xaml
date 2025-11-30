@@ -33,16 +33,44 @@
                  VerticalContentAlignment="Center"
                  Margin="5"/>
 
+        <!-- BOTÓ INFO -->
+        <Button x:Name="btnInfo"
+                Content="Info"
+                Width="80"
+                Height="30"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center"
+                Margin="5"
+                Click="btnInfo_Click"
+                Grid.Row="0" Grid.Column="3"/>
+
+
         <!-- BACKLOG -->
         <GroupBox Header="Backlog"
                   Grid.Row="1" Grid.Column="0" Margin="5">
-            <ListBox x:Name="listBacklog" />
+
+            <StackPanel>
+
+                <Button x:Name="btnAddBackLog"
+                        Content="Afegir Tasca"
+                        Margin="5"
+                        Click="btnAddBacklog_Click"/>
+                <ListBox x:Name="listBacklog" />
+            </StackPanel>
+
         </GroupBox>
 
         <!-- TODO -->
         <GroupBox Header="To Do"
                   Grid.Row="1" Grid.Column="1" Margin="5">
-            <ListBox x:Name="listTodo" />
+            <StackPanel>
+                <Button x:Name="btnAddTodo"
+                        Content="Afegir Tasca"
+                        Margin="5"
+                        Click="btnAddTodo_Click"/>
+
+                <ListBox x:Name="listTodo" />
+            </StackPanel>
         </GroupBox>
 
         <!-- DOING -->

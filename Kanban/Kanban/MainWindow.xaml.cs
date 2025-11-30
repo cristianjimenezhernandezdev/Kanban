@@ -1,67 +1,66 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using static Kanban.MainWindow;
 
 namespace Kanban
 {
     public partial class MainWindow : Window
     {
-        public List<Tasques> ListaDeTasques { get; set; }
+        // Llistes de cada columna
+        public List<Tasques> Backlog { get; set; }
+        public List<Tasques> Todo { get; set; }
+        public List<Tasques> Doing { get; set; }
+        public List<Tasques> Done { get; set; }
+
         public MainWindow()
         {
             InitializeComponent();
 
-            ListaDeTasques = new List<Tasques>();
-            
-            ListaDeTasques.Add(new Tasques()
+            // Inicialitzar columnes
+            Backlog = new List<Tasques>();
+            Todo = new List<Tasques>();
+            Doing = new List<Tasques>();
+            Done = new List<Tasques>();
+
+            // Exemple de dades inicials
+            Backlog.Add(new Tasques()
             {
-                Titol = "Dissenyar interfície d'usuari",
-                Descripcio = "Crear dissenys per a la nova aplicació mòbil.",
-                Estat = "En Progrés",
-                Responsable = "Anna",
-                DataVenciment = DateTime.Now.AddDays(7),
-                Prioritat = 2,
-                DataCreacio = DateTime.Now.AddDays(-3),
-                Notes = "Revisar amb l'equip de màrqueting."
+                Titol = "Crear mockups UI",
+                Estat = "Backlog",
+                Prioritat = 1,
+                DataCreacio = DateTime.Now
             });
 
-            ListaDeTasques.Add(new Tasques()
+            Todo.Add(new Tasques()
+            {
+                Titol = "Configurar base de dades",
+                Estat = "ToDo",
+                Prioritat = 2,
+                DataCreacio = DateTime.Now
+            });
+
+            Doing.Add(new Tasques()
             {
                 Titol = "Implementar autenticació",
-                Descripcio = "Afegir funcionalitat d'inici de sessió i registre.",
-                Estat = "Per Fer",
-                Responsable = "Joan",
-                DataVenciment = DateTime.Now.AddDays(14),
+                Estat = "Doing",
                 Prioritat = 1,
-                DataCreacio = DateTime.Now,
-                Notes = "Utilitzar OAuth2 per a la seguretat."
+                DataCreacio = DateTime.Now
             });
 
-            ListaDeTasques.Add(new Tasques()
+            Done.Add(new Tasques()
             {
-                Titol = "Provar aplicació",
-                Descripcio = "Realitzar proves completes de la nova aplicació.",
-                Estat = "Fet",
-                Responsable = "Maria",
-                DataVenciment = DateTime.Now.AddDays(-1),
+                Titol = "Reunió inicial del projecte",
+                Estat = "Done",
                 Prioritat = 3,
-                DataCreacio = DateTime.Now.AddDays(-10),
-                Notes = "Documentar tots els errors trobats."
+                DataCreacio = DateTime.Now.AddDays(-2)
             });
 
-            llistaTasques.ItemsSource = ListaDeTasques;
+            // Enllaçar llistes amb ListBox
+            listBacklog.ItemsSource = Backlog;
+            listTodo.ItemsSource = Todo;
+            listDoing.ItemsSource = Doing;
+            listDone.ItemsSource = Done;
         }
 
         public class Tasques
@@ -72,24 +71,58 @@ namespace Kanban
             public string Responsable { get; set; }
             public DateTime DataVenciment { get; set; }
             public int Prioritat { get; set; }
-            public DateTime DataCreacio { get; set; }           
+            public DateTime DataCreacio { get; set; }
             public string Notes { get; set; }
+
+            public override string ToString()
+            {
+                return Titol;
+            }
         }
 
-        private void Button_Click_AfegirTasca(object sender, RoutedEventArgs e)
+        private void btnAddBacklog_Click(object sender, RoutedEventArgs e)
         {
-            Tasques nova = new Tasques()
+            TascaWindow tascaWindow = new TascaWindow();
+
+            if (tascaWindow.ShowDialog() == false)
             {
-                Titol = "Titol 1",
-                Estat = "Per Fer",
-                DataCreacio = DateTime.Now,
-                Prioritat = 1
-            };
+                Backlog.Add(new Tasques()
+                {
+                    Titol = tascaWindow.Titol,
+                    Descripcio = tascaWindow.Descripcio,
+                    Estat = "Backlog",
+                    Responsable = tascaWindow.Responsable,
+                    Prioritat = tascaWindow.Prioritat,
+                    DataVenciment = tascaWindow.DataVenciment ?? DateTime.Now,
+                    Notes = tascaWindow.Notes,
+                    DataCreacio = DateTime.Now
+                });
+                // Actualitzar la vista
+                listBacklog.Items.Refresh();
+            }
+        }
 
-            ListaDeTasques.Add(nova);
+        private void btnAddTodo_Click(object sender, RoutedEventArgs e)
+        {
+            TascaWindow tascaWindow = new TascaWindow();
 
-            // Refrescar interfície
-            llistaTasques.Items.Refresh();
+            tascaWindow.Show();
+
+            listTodo.Items.Refresh();
+        }
+
+        private void btnInfo_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show(
+                "Aplicació Kanban creada per Amine.\nVersió 1.0\nGestiona tasques i projectes de forma visual.",
+                "Informació",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
+
+        private string ConsutlaSelect()
+        {
+            return "";
         }
     }
 }
