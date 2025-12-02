@@ -35,6 +35,7 @@ namespace Kanban
             {
                 "Cistian",
                 "Amine"
+               
             };
 
             cmbSprintMaster.ItemsSource = Participants;
@@ -202,7 +203,7 @@ namespace Kanban
 
         private void BtnAddParticipant_Click(object sender, RoutedEventArgs e)
         {
-            Participants.Add("Nou Participant");
+            Participants.Add("Julia");
             CarregarParticipants();
         }
 

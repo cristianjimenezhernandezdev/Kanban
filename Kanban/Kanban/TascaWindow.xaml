@@ -3,49 +3,35 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Kanban"
         mc:Ignorable="d"
         Title="TascaWindow" Height="500" Width="600">
-    
     <Grid Margin="20">
         <Grid.RowDefinitions>
-            
             <RowDefinition Height="Auto"/> <!-- Descripció -->
-            <RowDefinition Height="Auto"/> <!-- Prioritat -->
-            <RowDefinition Height="Auto"/> <!-- Data venciment -->
             <RowDefinition Height="Auto"/> <!-- Responsable -->
+            <RowDefinition Height="Auto"/> <!-- Prioritat -->
             <RowDefinition Height="Auto"/> <!-- Notes -->
-            <RowDefinition Height="*"/> <!-- Botó -->
+            <RowDefinition Height="Auto"/> <!-- Data venciment -->
+            <RowDefinition Height="*"/>    <!-- Botó -->
         </Grid.RowDefinitions>
 
-     
+        <TextBlock Text="Descripció:" Grid.Row="0"/>
+        <TextBox x:Name="txtDescripcio" Grid.Row="0" Margin="0 20 0 10" Height="80"/>
 
-        <TextBlock Text="Descripció:" Grid.Row="1"/>
-        <TextBox x:Name="txtDescripcio" Grid.Row="1" Margin="0 20 0 10" Height="80"/>
+        <TextBlock Text="Responsable:" Grid.Row="1"/>
+        <ComboBox x:Name="cmbParticipants" Grid.Row="1" Margin="0 20 0 10"/>
 
-        <!--Responsable / Participant-->
-        <TextBlock Text="Responsable:" Grid.Row="2"/>
-        <ComboBox x:Name="cmbParticipants" Grid.Row="2" Margin="0 20 0 10">
-            <ComboBoxItem Content="1"/>
-            <ComboBoxItem Content="2"/>
-            <ComboBoxItem Content="3"/>
-        </ComboBox>
+        <TextBlock Text="Prioritat:" Grid.Row="2"/>
+        <ComboBox x:Name="cmbPrioritat" Grid.Row="2" Margin="0 20 0 10"/>
 
-        <TextBlock Text="Prioritat:" Grid.Row="3"/>
-        <ComboBox x:Name="cmbPrioritat" Grid.Row="3" Margin="0 20 0 10">
-            <ComboBoxItem Content="1"/>
-            <ComboBoxItem Content="2"/>
-            <ComboBoxItem Content="3"/>
-        </ComboBox>
+        <TextBlock Text="Nota:" Grid.Row="3"/>
+        <TextBox x:Name="txtNotes" Grid.Row="3" Margin="0 20 0 10" Height="40"/>
 
-        <TextBlock Text="Nota:" Grid.Row="4"/>
-        <TextBox x:Name="txtNotes" Grid.Row="4" Margin="0 20 0 10" Height="40"/>
-        
-        <TextBlock Text="Data venciment:" Grid.Row="5"/>
-        <DatePicker x:Name="dpDataVenciment" Grid.Row="5" Margin="0 20 0 10"/>
+        <TextBlock Text="Data venciment:" Grid.Row="4"/>
+        <DatePicker x:Name="dpDataVenciment" Grid.Row="4" Margin="0 20 0 10"/>
 
         <Button Content="Afegir"
-                Grid.Row="6"
+                Grid.Row="5"
                 Width="120" Height="35"
                 HorizontalAlignment="Center"
                 Click="BtnAceptar_Click"/>

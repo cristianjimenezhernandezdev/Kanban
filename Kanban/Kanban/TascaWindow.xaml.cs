@@ -18,8 +18,8 @@ namespace Kanban
         public TascaWindow(List<string> participants)
         {
             InitializeComponent();
-
             cmbParticipants.ItemsSource = participants;
+            cmbPrioritat.ItemsSource = new[] { "1", "2", "3" };
         }
 
         // Opcional: constructor buit per al dissenyador de WPF
