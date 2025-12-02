@@ -9,7 +9,7 @@
     
     <Grid Margin="20">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/> <!-- Títol -->
+            
             <RowDefinition Height="Auto"/> <!-- Descripció -->
             <RowDefinition Height="Auto"/> <!-- Prioritat -->
             <RowDefinition Height="Auto"/> <!-- Data venciment -->
@@ -18,8 +18,7 @@
             <RowDefinition Height="*"/> <!-- Botó -->
         </Grid.RowDefinitions>
 
-        <TextBlock Text="Títol:" />
-        <TextBox x:Name="txtTitol" Grid.Row="0" Margin="0 20 0 10"/>
+     
 
         <TextBlock Text="Descripció:" Grid.Row="1"/>
         <TextBox x:Name="txtDescripcio" Grid.Row="1" Margin="0 20 0 10" Height="80"/>

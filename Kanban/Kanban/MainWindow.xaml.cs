@@ -17,6 +17,10 @@ namespace Kanban
         // Exemple de participants
         public List<string> Participants { get; set; }
 
+        // Camps per al drag & drop
+        private Tasques _draggedTask;
+        private ListBox _sourceListBox;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -108,7 +112,7 @@ namespace Kanban
             {
                 Backlog.Add(new Tasques()
                 {
-                    Titol = w.Titol,
+                    
                     Descripcio = w.Descripcio,
                     Estat = "Backlog",
                     Responsable = w.Responsable,
@@ -134,7 +138,7 @@ namespace Kanban
             {
                 Todo.Add(new Tasques()
                 {
-                    Titol = w.Titol,
+                   
                     Descripcio = w.Descripcio,
                     Estat = "ToDo",
                     Responsable = w.Responsable,
@@ -210,6 +214,90 @@ namespace Kanban
                 // Pots fer el que vulguis, com guardar-ho a BBDD
                 MessageBox.Show("Nou Sprint Master: " + seleccionat);
             }
+        }
+
+
+        // ─────────────────────────────────────────────
+        // DRAG & DROP ENTRE COLUMNES
+        // ─────────────────────────────────────────────
+        private void ListBox_PreviewMouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
+            {
+                var listBox = sender as ListBox;
+                if (listBox == null) return;
+
+                var tasca = listBox.SelectedItem as Tasques;
+                if (tasca == null) return;
+
+                _draggedTask = tasca;
+                _sourceListBox = listBox;
+
+                DragDrop.DoDragDrop(listBox,
+                    new DataObject("Tasca", tasca),
+                    DragDropEffects.Move);
+
+                _draggedTask = null;
+                _sourceListBox = null;
+            }
+        }
+
+        private void ListBox_DragOver(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent("Tasca"))
+            {
+                e.Effects = DragDropEffects.Move;
+            }
+            else
+            {
+                e.Effects = DragDropEffects.None;
+            }
+            e.Handled = true;
+        }
+
+        private void ListBox_Drop(object sender, DragEventArgs e)
+        {
+            if (!e.Data.GetDataPresent("Tasca")) return;
+
+            var tasca = e.Data.GetData("Tasca") as Tasques;
+            var targetListBox = sender as ListBox;
+
+            if (tasca == null || targetListBox == null) return;
+            if (_sourceListBox == null || _sourceListBox == targetListBox) return;
+
+            // 1. Treure de la llista origen
+            if (_sourceListBox == listBacklog) Backlog.Remove(tasca);
+            else if (_sourceListBox == listTodo) Todo.Remove(tasca);
+            else if (_sourceListBox == listDoing) Doing.Remove(tasca);
+            else if (_sourceListBox == listDone) Done.Remove(tasca);
+
+            // 2. Afegir a la llista destí i actualitzar Estat
+            if (targetListBox == listBacklog)
+            {
+                tasca.Estat = "Backlog";
+                Backlog.Add(tasca);
+            }
+            else if (targetListBox == listTodo)
+            {
+                tasca.Estat = "ToDo";
+                Todo.Add(tasca);
+            }
+            else if (targetListBox == listDoing)
+            {
+                tasca.Estat = "Doing";
+                Doing.Add(tasca);
+            }
+            else if (targetListBox == listDone)
+            {
+                tasca.Estat = "Done";
+                Done.Add(tasca);
+            }
+
+            // 3. Refrescar totes les columnes
+            listBacklog.Items.Refresh();
+            listTodo.Items.Refresh();
+            listDoing.Items.Refresh();
+            listDone.Items.Refresh();
         }
     }
 }

@@ -7,7 +7,7 @@ namespace Kanban
 {
     public partial class TascaWindow : Window
     {
-        public string Titol { get; private set; }
+    
         public string Descripcio { get; private set; }
         public int Prioritat { get; private set; }
         public DateTime? DataVenciment { get; private set; }
@@ -27,7 +27,7 @@ namespace Kanban
 
         private void BtnAceptar_Click(object sender, RoutedEventArgs e)
         {
-            Titol = txtTitol.Text;
+          
             Descripcio = txtDescripcio.Text;
             Prioritat = cmbPrioritat.SelectedIndex + 1;
             DataVenciment = dpDataVenciment.SelectedDate;
