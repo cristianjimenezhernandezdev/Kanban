@@ -1,7 +1,8 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace Kanban
 {
@@ -13,6 +14,9 @@ namespace Kanban
         public List<Tasques> Doing { get; set; }
         public List<Tasques> Done { get; set; }
 
+        // Exemple de participants
+        public List<string> Participants { get; set; }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -23,7 +27,16 @@ namespace Kanban
             Doing = new List<Tasques>();
             Done = new List<Tasques>();
 
-            // Exemple de dades inicials
+            Participants = new List<string>()
+            {
+                "Cistian",
+                "Amine"
+            };
+
+            cmbSprintMaster.ItemsSource = Participants;
+            cmbSprintMaster.SelectedIndex = 0; // Sprint master inicial
+
+            // Dades inicials
             Backlog.Add(new Tasques()
             {
                 Titol = "Crear mockups UI",
@@ -56,13 +69,19 @@ namespace Kanban
                 DataCreacio = DateTime.Now.AddDays(-2)
             });
 
-            // Enllaçar llistes amb ListBox
+            // Enllaçar amb ListBox
             listBacklog.ItemsSource = Backlog;
             listTodo.ItemsSource = Todo;
             listDoing.ItemsSource = Doing;
             listDone.ItemsSource = Done;
+
+            // Afegir participants al header
+            CarregarParticipants();
         }
 
+        // ─────────────────────────────────────────────
+        // CLASSE TASQUES
+        // ─────────────────────────────────────────────
         public class Tasques
         {
             public string Titol { get; set; }
@@ -74,55 +93,123 @@ namespace Kanban
             public DateTime DataCreacio { get; set; }
             public string Notes { get; set; }
 
-            public override string ToString()
-            {
-                return Titol;
-            }
+            public override string ToString() => Titol;
         }
 
+
+        // ─────────────────────────────────────────────
+        // BOTÓ AFEGIR TASCA (BACKLOG)
+        // ─────────────────────────────────────────────
         private void btnAddBacklog_Click(object sender, RoutedEventArgs e)
         {
-            TascaWindow tascaWindow = new TascaWindow();
+            TascaWindow w = new TascaWindow(Participants);
 
-            if (tascaWindow.ShowDialog() == false)
+            if (w.ShowDialog() == true)
             {
                 Backlog.Add(new Tasques()
                 {
-                    Titol = tascaWindow.Titol,
-                    Descripcio = tascaWindow.Descripcio,
+                    Titol = w.Titol,
+                    Descripcio = w.Descripcio,
                     Estat = "Backlog",
-                    Responsable = tascaWindow.Responsable,
-                    Prioritat = tascaWindow.Prioritat,
-                    DataVenciment = tascaWindow.DataVenciment ?? DateTime.Now,
-                    Notes = tascaWindow.Notes,
+                    Responsable = w.Responsable,
+                    Prioritat = w.Prioritat,
+                    DataVenciment = w.DataVenciment ?? DateTime.Now,
+                    Notes = w.Notes,
                     DataCreacio = DateTime.Now
                 });
-                // Actualitzar la vista
+
                 listBacklog.Items.Refresh();
             }
         }
 
+
+        // ─────────────────────────────────────────────
+        // BOTÓ AFEGIR TASCA (TODO)
+        // ─────────────────────────────────────────────
         private void btnAddTodo_Click(object sender, RoutedEventArgs e)
         {
-            TascaWindow tascaWindow = new TascaWindow();
+            TascaWindow w = new TascaWindow(Participants);
 
-            tascaWindow.Show();
+            if (w.ShowDialog() == true)
+            {
+                Todo.Add(new Tasques()
+                {
+                    Titol = w.Titol,
+                    Descripcio = w.Descripcio,
+                    Estat = "ToDo",
+                    Responsable = w.Responsable,
+                    Prioritat = w.Prioritat,
+                    DataVenciment = w.DataVenciment ?? DateTime.Now,
+                    Notes = w.Notes,
+                    DataCreacio = DateTime.Now
+                });
 
-            listTodo.Items.Refresh();
+                listTodo.Items.Refresh();
+            }
         }
 
+
+        // ─────────────────────────────────────────────
+        // BOTÓ INFO
+        // ─────────────────────────────────────────────
         private void btnInfo_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show(
-                "Aplicació Kanban creada per Amine.\nVersió 1.0\nGestiona tasques i projectes de forma visual.",
+                "Aplicació Kanban creada per Cistian el SCRUM MASTER i Amine el SCRUM MANDADO.\nVersió 1.0\nGestiona tasques i projectes de forma visual.",
                 "Informació",
                 MessageBoxButton.OK,
-                MessageBoxImage.Information);
+                MessageBoxImage.Information
+            );
         }
 
-        private string ConsutlaSelect()
+
+        // ─────────────────────────────────────────────
+        // PARTICIPANTS EN EL HEADER
+        // ─────────────────────────────────────────────
+        private void CarregarParticipants()
         {
-            return "";
+            panelParticipants.Children.Clear();
+
+            foreach (var p in Participants)
+            {
+                panelParticipants.Children.Add(
+                    CrearEtiquetaParticipant(p, "#2196F3", 0)
+                );
+            }
+        }
+
+        private Border CrearEtiquetaParticipant(string nom, string colorHex, int numTasques)
+        {
+            return new Border
+            {
+                Background = (SolidColorBrush)new BrushConverter().ConvertFrom(colorHex),
+                CornerRadius = new CornerRadius(5),
+                Margin = new Thickness(5),
+                Padding = new Thickness(7),
+                Child = new TextBlock
+                {
+                    Text = $"{nom}  {numTasques}",
+                    Foreground = Brushes.White,
+                    FontWeight = FontWeights.Bold
+                }
+            };
+        }
+
+
+        private void BtnAddParticipant_Click(object sender, RoutedEventArgs e)
+        {
+            Participants.Add("Nou Participant");
+            CarregarParticipants();
+        }
+
+        private void cmbSprintMaster_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cmbSprintMaster.SelectedItem != null)
+            {
+                string seleccionat = cmbSprintMaster.SelectedItem.ToString();
+                // Pots fer el que vulguis, com guardar-ho a BBDD
+                MessageBox.Show("Nou Sprint Master: " + seleccionat);
+            }
         }
     }
 }

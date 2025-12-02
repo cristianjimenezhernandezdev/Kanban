@@ -5,43 +5,37 @@ using System.Windows.Controls;
 
 namespace Kanban
 {
-    /// <summary>
-    /// Lógica de interacción para TascaWindow.xaml
-    /// </summary>
     public partial class TascaWindow : Window
     {
         public string Titol { get; private set; }
         public string Descripcio { get; private set; }
         public int Prioritat { get; private set; }
-
         public DateTime? DataVenciment { get; private set; }
         public string Responsable { get; private set; }
         public string Notes { get; private set; }
 
-        public TascaWindow()
+        // Constructor que rep la llista de participants
+        public TascaWindow(List<string> participants)
         {
             InitializeComponent();
+
+            cmbParticipants.ItemsSource = participants;
         }
+
+        // Opcional: constructor buit per al dissenyador de WPF
+        public TascaWindow() : this(new List<string>()) { }
 
         private void BtnAceptar_Click(object sender, RoutedEventArgs e)
         {
-
             Titol = txtTitol.Text;
             Descripcio = txtDescripcio.Text;
-
-            //if (cmbPrioritat.SelectedItem is ComboBoxItem item)
-            //    Prioritat = int.Parse(item.Content.ToString());
-
-            Prioritat = cmbPrioritat.SelectedIndex + 1; // Assume 1-based priority
+            Prioritat = cmbPrioritat.SelectedIndex + 1;
             DataVenciment = dpDataVenciment.SelectedDate;
+            Responsable = cmbParticipants.SelectedItem?.ToString();
+            Notes = txtNotes.Text;
 
             this.DialogResult = true;
             this.Close();
-        }
-
-        private void txtDescripcio_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
-        {
-
         }
     }
 }

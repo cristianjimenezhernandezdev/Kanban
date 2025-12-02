@@ -5,18 +5,19 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Kanban"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="600" Width="1000">
+
     <Grid Margin="10">
 
-        <!-- DEFINICIÓ DE FILES -->
+        <!-- FILES PRINCIPALS -->
         <Grid.RowDefinitions>
-            <RowDefinition Height="60"/>
-            <!-- Sprint Title -->
+            <RowDefinition Height="120"/>
+            <!-- CAPÇALERA -->
             <RowDefinition Height="*"/>
-            <!-- Columns -->
+            <!-- COLUMNES -->
         </Grid.RowDefinitions>
 
-        <!-- DEFINICIÓ DE COLUMNES -->
+        <!-- COLUMNES PRINCIPALS -->
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
@@ -24,65 +25,172 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <!-- TÍTOL DE L'SPRINT -->
-        <TextBox x:Name="txtSprintTitle"
-                 Grid.ColumnSpan="4"
-                 FontSize="24"
-                 FontWeight="Bold"
-                 Text="Sprint 1 - Desenvolupament"
-                 VerticalContentAlignment="Center"
-                 Margin="5"/>
 
-        <!-- BOTÓ INFO -->
-        <Button x:Name="btnInfo"
-                Content="Info"
-                Width="80"
-                Height="30"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Center"
-                Margin="5"
-                Click="btnInfo_Click"
-                Grid.Row="0" Grid.Column="3"/>
+        <!-- 🔷 CAPÇALERA -->
+        <Border Grid.Row="0" Grid.ColumnSpan="4"
+                CornerRadius="10"
+                Background="#E8F4FF"
+                Padding="10"
+                Margin="0 0 0 10"
+                BorderBrush="#C9E2FF"
+                BorderThickness="1">
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- 🟦 NOM SPRINT + MASTER -->
+                <StackPanel Grid.Column="0">
+                    <TextBox x:Name="txtSprintName"
+                            Text="Nom Sprint"
+                            FontSize="28"
+                            FontWeight="Bold"
+                            Foreground="#2F80ED"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            IsReadOnly="False"/>
+
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Sprint Master: "
+                               VerticalAlignment="Center"
+                               FontSize="14"
+                               Foreground="#555"/>
+
+                        <ComboBox x:Name="cmbSprintMaster"
+                              Width="150"
+                              FontSize="14"
+                              Foreground="#2F80ED"
+                              SelectionChanged="cmbSprintMaster_SelectionChanged"/>
+                    </StackPanel>
+                </StackPanel>
 
 
-        <!-- BACKLOG -->
+                <!-- 🟡 PARTICIPANTS -->
+                <StackPanel Grid.Column="1" Margin="10 0 0 0">
+
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Participants"
+                                   FontSize="16"
+                                   FontWeight="SemiBold"/>
+
+                        <Button Content="+"
+                                Width="25" Height="25"
+                                Margin="10 0 0 0"
+                                Background="#4CAF50"
+                                Foreground="White"
+                                BorderBrush="#2E7D32"
+                                Click="BtnAddParticipant_Click"/>
+                    </StackPanel>
+
+                    <!-- Aquí afegirem visualment els participants -->
+                    <WrapPanel x:Name="panelParticipants"
+                               Margin="0 5 0 0"/>
+                </StackPanel>
+
+
+                <!-- 🟣 BOTÓ "INFO" -->
+                <Button x:Name="btnInfo"
+                        Content="Info"
+                        Width="80"
+                        Height="30"
+                        Grid.Column="2"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Click="btnInfo_Click"/>
+            </Grid>
+        </Border>
+
+
+
+
+        <!-- 🔵 BACKLOG -->
         <GroupBox Header="Backlog"
                   Grid.Row="1" Grid.Column="0" Margin="5">
+            <Grid>
+                <ListBox x:Name="listBacklog" Margin="5"/>
 
-            <StackPanel>
-
-                <Button x:Name="btnAddBackLog"
-                        Content="Afegir Tasca"
-                        Margin="5"
-                        Click="btnAddBacklog_Click"/>
-                <ListBox x:Name="listBacklog" />
-            </StackPanel>
-
+                <!-- Botó circular per afegir tasca -->
+                <Button Content="+"
+                        Width="40" Height="40"
+                        FontSize="24"
+                        Background="#3498db"
+                        Foreground="White"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Margin="10"
+                        Click="btnAddBacklog_Click">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border CornerRadius="20"
+                                                Background="{TemplateBinding Background}">
+                                            <ContentPresenter HorizontalAlignment="Center"
+                                                              VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </Grid>
         </GroupBox>
 
-        <!-- TODO -->
+
+
+        <!-- 🟠 TODO -->
         <GroupBox Header="To Do"
                   Grid.Row="1" Grid.Column="1" Margin="5">
-            <StackPanel>
-                <Button x:Name="btnAddTodo"
-                        Content="Afegir Tasca"
-                        Margin="5"
-                        Click="btnAddTodo_Click"/>
+            <Grid>
+                <ListBox x:Name="listTodo" Margin="5"/>
 
-                <ListBox x:Name="listTodo" />
-            </StackPanel>
+                <Button Content="+"
+                        Width="40" Height="40"
+                        FontSize="24"
+                        Background="#2ecc71"
+                        Foreground="White"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Margin="10"
+                        Click="btnAddTodo_Click">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border CornerRadius="20"
+                                                Background="{TemplateBinding Background}">
+                                            <ContentPresenter HorizontalAlignment="Center"
+                                                              VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+
+                </Button>
+            </Grid>
         </GroupBox>
 
-        <!-- DOING -->
+
+
+        <!-- 🟣 DOING -->
         <GroupBox Header="Doing"
                   Grid.Row="1" Grid.Column="2" Margin="5">
-            <ListBox x:Name="listDoing" />
+            <ListBox x:Name="listDoing"/>
         </GroupBox>
 
-        <!-- DONE -->
+
+        <!-- 🟢 DONE -->
         <GroupBox Header="Done"
                   Grid.Row="1" Grid.Column="3" Margin="5">
-            <ListBox x:Name="listDone" />
+            <ListBox x:Name="listDone"/>
         </GroupBox>
 
     </Grid>
