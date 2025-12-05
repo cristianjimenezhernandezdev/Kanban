@@ -89,7 +89,15 @@
                             <WrapPanel x:Name="panelParticipants"
                                        Margin="0 5 0 0"/>
                         </StackPanel>
-
+                            <!-- 🟣 BOTÓ "CREAR PROJECTE" -->
+                        <Button x:Name="btnCrearProjecte"
+                                    Content="+ Projecte"
+                                    Width="80"
+                                    Height="30"
+                                    Grid.Column="2"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Top"
+                                    Click="btnCrearProjecte_Click"/>
 
                         <!-- 🟣 BOTÓ "INFO" -->
                         <Button x:Name="btnInfo"
@@ -97,10 +105,20 @@
                                 Width="80"
                                 Height="30"
                                 Grid.Column="2"
+                                BorderrRadius=""
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Center"
                                 Click="btnInfo_Click"/>
-                    </Grid>
+
+                        <Button x:Name="btnObrirProjecte"
+                                Content="Obrir"
+                                Width="80"
+                                Height="30"
+                                Grid.Column="2"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Bottom"
+                                Click="btnObrirProjecte_Click"/>
+            </Grid>
                 </Border>
 
 

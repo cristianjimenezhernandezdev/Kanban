@@ -1,0 +1,43 @@
+﻿<Window x:Class="Kanban.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Kanban"
+        mc:Ignorable="d"
+        Title="LoginWindow" Height="300" Width="400">
+    <Grid Margin="20">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Inicia Sessió"
+                   FontSize="24"
+                   FontWeight="Bold"
+                   HorizontalAlignment="Center"/>
+
+        <StackPanel Grid.Row="1" Margin="0 20 0 0">
+            <TextBlock Text="Usuari:"/>
+            <TextBox x:Name="txtUsuari" Height="30"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Margin="0 10 0 0">
+            <TextBlock Text="Contrasenya:"/>
+            <PasswordBox x:Name="txtContrasenya" Height="30"/>
+        </StackPanel>
+
+        <Button Grid.Row="3" Height="40" Width="120" Margin="20"
+                Content="Iniciar Sessió"
+                HorizontalAlignment="Left"
+                Click="BtnLogin_Click"/>
+
+        <Button Grid.Row="3" Height="40" Width="120" Margin="20"
+         Content="Cancelar"
+         HorizontalAlignment="Right"
+         Click="BtnLogin_Click"/>
+    </Grid>
+</Window>

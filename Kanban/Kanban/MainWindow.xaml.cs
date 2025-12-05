@@ -153,6 +153,29 @@ namespace Kanban
             }
         }
 
+        // ─────────────────────────────────────────────
+        // BOTÓ CREAR PROJECTE
+        // ─────────────────────────────────────────────
+        private void btnCrearProjecte_Click(object sender, RoutedEventArgs e)
+        {
+            TascaWindow w = new TascaWindow(Participants);
+
+            if (w.ShowDialog() == true)
+            {
+                Backlog.Add(new Tasques()
+                {
+
+                    Descripcio = w.Descripcio,
+                    Estat = "Backlog",
+                    Responsable = w.Responsable,
+                    Prioritat = w.Prioritat,
+                    DataVenciment = w.DataVenciment ?? DateTime.Now,
+                    Notes = w.Notes,
+                    DataCreacio = DateTime.Now
+                });
+
+                listBacklog.Items.Refresh();
+            }
 
         // ─────────────────────────────────────────────
         // BOTÓ INFO
