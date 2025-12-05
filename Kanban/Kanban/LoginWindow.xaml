@@ -5,11 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Kanban"
         mc:Ignorable="d"
-        Title="LoginWindow" Height="300" Width="400">
+        Title="LoginWindow" Height="350" Width="400">
     <Grid Margin="20">
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -22,22 +21,22 @@
 
         <StackPanel Grid.Row="1" Margin="0 20 0 0">
             <TextBlock Text="Usuari:"/>
-            <TextBox x:Name="txtUsuari" Height="30"/>
+            <TextBox x:Name="txtUsuari" Height="20"/>
         </StackPanel>
 
-        <StackPanel Grid.Row="2" Margin="0 10 0 0">
+        <StackPanel Grid.Row="2" Margin="0 20 0 0">
             <TextBlock Text="Contrasenya:"/>
-            <PasswordBox x:Name="txtContrasenya" Height="30"/>
+            <PasswordBox x:Name="txtContrasenya" Height="20"/>
         </StackPanel>
 
-        <Button Grid.Row="3" Height="40" Width="120" Margin="20"
+        <Button Grid.Row="2" Height="30" Width="120" Margin="18,68,0,58"
                 Content="Iniciar Sessió"
                 HorizontalAlignment="Left"
                 Click="BtnLogin_Click"/>
 
-        <Button Grid.Row="3" Height="40" Width="120" Margin="20"
+        <Button Grid.Row="2" Height="30" Width="120" Margin="0,68,20,58"
          Content="Cancelar"
          HorizontalAlignment="Right"
-         Click="BtnLogin_Click"/>
+         Click="BtnCancelar_Click" RenderTransformOrigin="0.487,1.221"/>
     </Grid>
 </Window>

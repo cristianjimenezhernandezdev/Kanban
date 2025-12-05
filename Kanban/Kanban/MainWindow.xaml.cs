@@ -176,6 +176,7 @@ namespace Kanban
 
                 listBacklog.Items.Refresh();
             }
+        }
 
         // ─────────────────────────────────────────────
         // BOTÓ INFO
@@ -322,6 +323,11 @@ namespace Kanban
             listTodo.Items.Refresh();
             listDoing.Items.Refresh();
             listDone.Items.Refresh();
+        }
+
+        private void btnObrirProjecte_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
