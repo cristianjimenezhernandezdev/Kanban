@@ -105,7 +105,6 @@
                                 Width="80"
                                 Height="30"
                                 Grid.Column="2"
-                                BorderrRadius=""
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Center"
                                 Click="btnInfo_Click"/>
