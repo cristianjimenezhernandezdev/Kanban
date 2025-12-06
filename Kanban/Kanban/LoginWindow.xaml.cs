@@ -1,17 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using MySql.Data.MySqlClient;
+
 
 namespace Kanban
 {
@@ -22,7 +13,11 @@ namespace Kanban
     /// </summary>
     public partial class LoginWindow : Window
     {
-        string connectionString = "Server=http://ellaboratori.cat/phpmyadmin/index.php;Database=amine;Password=campa123";
+        //string connectionString = "Server=http://ellaboratori.cat/phpmyadmin/index.php;Port=3306;Database=amine;Uid=amine;Pwd=campa123;";
+
+        //string connectionString = "Server=http://ellaboratori.cat/phpmyadmin/index.php;Database=amine;Password=campa123";
+
+        string connectionString = "Server=NITRO-AMINE;Database=ProjecteKanban;Trusted_Connection=True;";
 
         public LoginWindow()
         {
@@ -38,20 +33,17 @@ namespace Kanban
             {
                 conn.Open();
 
-                string query = "SELECT COUNT(*) FROM UsuarisLogin " +
-                               "WHERE NomUsuari=@user AND Contrasenya=@pass";
+                string query = "SELECT COUNT(*) FROM Grups WHERE Nom=@user AND Codi=@pass";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@user", usuari);
                 cmd.Parameters.AddWithValue("@pass", contrasenya);
 
-                int count = (int)cmd.ExecuteScalar();
+                int count = Convert.ToInt32(cmd.ExecuteScalar());
 
                 if (count > 0)
                 {
-                    // Login correcte
-                    MainWindow mw = new MainWindow();
-                    mw.Show();
+                    new MainWindow().Show();
                     this.Close();
                 }
                 else
