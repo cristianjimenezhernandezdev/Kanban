@@ -45,6 +45,7 @@
                         <!-- 🟦 NOM SPRINT + MASTER -->
                         <StackPanel Grid.Column="0">
                             <TextBox x:Name="txtSprintName"
+                                     Margin="10"
                                     Text="Nom Sprint"
                                     FontSize="28"
                                     FontWeight="Bold"
@@ -72,13 +73,19 @@
                         <StackPanel Grid.Column="1" Margin="10 0 0 0">
 
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Participants"
+                                <TextBlock Text="Participants  "
                                            FontSize="16"
                                            FontWeight="SemiBold"/>
 
-                                <Button Content="+"
+                             <ComboBox x:Name="cmbParticipants"
+                                    Width="150"
+                                    FontSize="14"
+                                    Foreground="#2F80ED"
+                                    SelectionChanged="cmbParticipants_SelectionChanged"/>
+
+                        <Button Content="+"
                                         Width="25" Height="25"
-                                        Margin="10 0 0 0"
+                                        Margin="15 0 0 0"
                                         Background="#4CAF50"
                                         Foreground="White"
                                         BorderBrush="#2E7D32"

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using Kanban.Programs.cs;
 
 namespace Kanban
 {
@@ -24,65 +26,30 @@ namespace Kanban
         public MainWindow()
         {
             InitializeComponent();
-
-            // Inicialitzar columnes
-            Backlog = new List<Tasques>();
-            Todo = new List<Tasques>();
-            Doing = new List<Tasques>();
-            Done = new List<Tasques>();
-
-            Participants = new List<string>()
-            {
-                "Cistian",
-                "Amine"
-               
-            };
-
-            cmbSprintMaster.ItemsSource = Participants;
-            cmbSprintMaster.SelectedIndex = 0; // Sprint master inicial
-
-            // Dades inicials
-            Backlog.Add(new Tasques()
-            {
-                Titol = "Crear mockups UI",
-                Estat = "Backlog",
-                Prioritat = 1,
-                DataCreacio = DateTime.Now
-            });
-
-            Todo.Add(new Tasques()
-            {
-                Titol = "Configurar base de dades",
-                Estat = "ToDo",
-                Prioritat = 2,
-                DataCreacio = DateTime.Now
-            });
-
-            Doing.Add(new Tasques()
-            {
-                Titol = "Implementar autenticació",
-                Estat = "Doing",
-                Prioritat = 1,
-                DataCreacio = DateTime.Now
-            });
-
-            Done.Add(new Tasques()
-            {
-                Titol = "Reunió inicial del projecte",
-                Estat = "Done",
-                Prioritat = 3,
-                DataCreacio = DateTime.Now.AddDays(-2)
-            });
-
-            // Enllaçar amb ListBox
-            listBacklog.ItemsSource = Backlog;
-            listTodo.ItemsSource = Todo;
-            listDoing.ItemsSource = Doing;
-            listDone.ItemsSource = Done;
-
-            // Afegir participants al header
-            CarregarParticipants();
+            CarregarParticipantsBD();
         }
+
+        private void CarregarParticipantsBD()
+        {
+            using (SqlConnection conn = new SqlConnection(Database.connectionString))
+            {
+                conn.Open();
+
+                string query = "SELECT Nom FROM Usuaris";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                cmbParticipants.Items.Clear();
+
+                while (reader.Read())
+                {
+                    cmbParticipants.Items.Add(reader["Nom"].ToString());
+                    cmbSprintMaster.Items.Add(reader["Nom"].ToString());
+                }
+            }
+        }
+
 
         // ─────────────────────────────────────────────
         // CLASSE TASQUES
@@ -184,7 +151,7 @@ namespace Kanban
         private void btnInfo_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show(
-                "Aplicació Kanban creada per Cistian el SCRUM MASTER i Amine el SCRUM MANDADO.\nVersió 1.0\nGestiona tasques i projectes de forma visual.",
+                "Aplicació Kanban creada per Cistian i Amine.\nVersió 1.0\nGestiona tasques i projectes desde la base de dades.",
                 "Informació",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information
@@ -199,10 +166,12 @@ namespace Kanban
         {
             panelParticipants.Children.Clear();
 
-            foreach (var p in Participants)
+            foreach (var item in cmbParticipants.Items)
             {
+                string nom = item.ToString();
+
                 panelParticipants.Children.Add(
-                    CrearEtiquetaParticipant(p, "#2196F3", 0)
+                    CrearEtiquetaParticipant(nom, "#2196F3", 0)
                 );
             }
         }
@@ -227,18 +196,12 @@ namespace Kanban
 
         private void BtnAddParticipant_Click(object sender, RoutedEventArgs e)
         {
-            Participants.Add("Julia");
-            CarregarParticipants();
+            CarregarParticipantsBD();
         }
 
         private void cmbSprintMaster_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (cmbSprintMaster.SelectedItem != null)
-            {
-                string seleccionat = cmbSprintMaster.SelectedItem.ToString();
-                // Pots fer el que vulguis, com guardar-ho a BBDD
-                // MessageBox.Show("Nou Sprint Master: " + seleccionat); // aixo ho hem de treure mes endavant
-            }
+            
         }
 
 
@@ -328,6 +291,27 @@ namespace Kanban
         private void btnObrirProjecte_Click(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        private void cmbParticipants_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cmbParticipants.SelectedItem == null)
+                return;
+
+            string nom = cmbParticipants.SelectedItem.ToString();
+
+            // OPCIONAL: evitar duplicats
+            foreach (Border b in panelParticipants.Children)
+            {
+                if (((TextBlock)b.Child).Text.Contains(nom))
+                    return; // ja existeix
+            }
+
+            // Afegir al panell
+            panelParticipants.Children.Add(
+                CrearEtiquetaParticipant(nom, "#2196F3", 0)
+            );
+            //CarregarParticipantsBD();
         }
     }
 }

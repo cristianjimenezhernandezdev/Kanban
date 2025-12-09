@@ -107,6 +107,7 @@
     <Compile Include="LoginWindow.xaml.cs">
       <DependentUpon>LoginWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Programs.cs\DataBase.cs" />
     <Compile Include="TascaWindow.xaml.cs">
       <DependentUpon>TascaWindow.xaml</DependentUpon>
     </Compile>

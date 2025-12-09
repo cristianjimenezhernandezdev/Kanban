@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data.SqlClient;
 using System.Windows;
-using MySql.Data.MySqlClient;
+using Kanban.Programs.cs;
 
 
 namespace Kanban
@@ -13,11 +13,11 @@ namespace Kanban
     /// </summary>
     public partial class LoginWindow : Window
     {
-        //string connectionString = "Server=http://ellaboratori.cat/phpmyadmin/index.php;Port=3306;Database=amine;Uid=amine;Pwd=campa123;";
+        //string connectionString = "Server=http://ellaboratori.cat;Port=3306;Database=amine;Uid=amine;Pwd=campa123;";
 
         //string connectionString = "Server=http://ellaboratori.cat/phpmyadmin/index.php;Database=amine;Password=campa123";
 
-        string connectionString = "Server=NITRO-AMINE;Database=ProjecteKanban;Trusted_Connection=True;";
+        static public string connectionString = "Server=NITRO-AMINE;Database=ProjecteKanban;Trusted_Connection=True;";
 
         public LoginWindow()
         {
@@ -29,7 +29,7 @@ namespace Kanban
             string usuari = txtUsuari.Text;
             string contrasenya = txtContrasenya.Password;
 
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (SqlConnection conn = new SqlConnection(Database.connectionString))
             {
                 conn.Open();
 
