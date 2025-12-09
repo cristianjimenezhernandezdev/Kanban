@@ -17,43 +17,44 @@ namespace WebApplicationAPIDemo.Controllers
     {
         // GET: users
         [HttpGet]
-        public List<User> Get()
+        public List<Grup> Get()
         {
-            UserService objUserService = new UserService();
-            return objUserService.GetAll();
+            var grupService = new GrupService();
+            return grupService.GetAll();
         }
 
         // GET users/5
         //La ultima part de la ruta, en aquest cas un 5 serà el que fem serfir, el id
         [HttpGet("{id}")]
-        public User Get(int id)
+        public Grup Get(int id)
         {
-            UserService objUserService = new UserService();
-            return objUserService.GetById(id);
+            var grupService = new GrupService();
+            return grupService.GetById(id);
         }
 
         // POST users
         [HttpPost]
-        public User Post([FromBody] User user)
+        public Grup Post([FromBody] Grup user)
         {
-            UserService objUserService = new UserService();
-            return objUserService.Add(user);
+            var grupService = new GrupService();
+            return grupService.Add(user);
         }
 
         // PUT users/5
         [HttpPut("{id}")]
-        public int Put(int id, [FromBody] User user)
+        public int Put(int id, [FromBody] Grup user)
         {
-            UserService objUserService = new UserService();
-            return objUserService.Update(user);
+            var grupService = new GrupService();
+            user.IdGrup = id;
+            return grupService.Update(user);
         }
 
         // DELETE users/5
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
-            UserService objUserService = new UserService();
-            objUserService.Delete(id);
+            var grupService = new GrupService();
+            grupService.Delete(id);
         }
     }
 }

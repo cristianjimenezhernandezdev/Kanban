@@ -1,6 +1,6 @@
-﻿namespace WebAplicationAPIRestDemo.DAL.Model
+﻿namespace WebApplicationAPIDemo.Model
 {
-    public class Grups
+    public class Grup
     {
         public int IdGrup { get; set; }
         public string Nom { get; set; }
