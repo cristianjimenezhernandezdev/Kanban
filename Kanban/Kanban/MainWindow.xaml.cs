@@ -237,7 +237,7 @@ namespace Kanban
             {
                 string seleccionat = cmbSprintMaster.SelectedItem.ToString();
                 // Pots fer el que vulguis, com guardar-ho a BBDD
-                MessageBox.Show("Nou Sprint Master: " + seleccionat); // aixo ho hem de treure mes endavant
+                // MessageBox.Show("Nou Sprint Master: " + seleccionat); // aixo ho hem de treure mes endavant
             }
         }
 
