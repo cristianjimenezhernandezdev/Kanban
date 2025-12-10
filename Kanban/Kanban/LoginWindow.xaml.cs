@@ -17,11 +17,19 @@ namespace Kanban
 
         //string connectionString = "Server=http://ellaboratori.cat/phpmyadmin/index.php;Database=amine;Password=campa123";
 
-        static public string connectionString = "Server=NITRO-AMINE;Database=ProjecteKanban;Trusted_Connection=True;";
+        //static public string connectionString = "Server=NITRO-AMINE;Database=ProjecteKanban;Trusted_Connection=True;";
+
+        public static int grupActiu;
 
         public LoginWindow()
         {
             InitializeComponent();
+        }
+
+        private void BtnCancelar_Click(object sender, RoutedEventArgs e)
+        {
+            // Tancar la finestra de login quan clico cancelar
+            this.Close();
         }
 
         private void BtnLogin_Click(object sender, RoutedEventArgs e)
@@ -33,30 +41,38 @@ namespace Kanban
             {
                 conn.Open();
 
-                string query = "SELECT COUNT(*) FROM Grups WHERE Nom=@user AND Codi=@pass";
+                // 1️⃣ Primer comprovem si l'usuari i contrasenya existeixen
+                string queryLogin = "SELECT COUNT(*) FROM Grups WHERE Nom=@user AND Codi=@pass";
 
-                SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@user", usuari);
-                cmd.Parameters.AddWithValue("@pass", contrasenya);
+                SqlCommand cmdLogin = new SqlCommand(queryLogin, conn);
+                cmdLogin.Parameters.AddWithValue("@user", usuari);
+                cmdLogin.Parameters.AddWithValue("@pass", contrasenya);
 
-                int count = Convert.ToInt32(cmd.ExecuteScalar());
+                int count = Convert.ToInt32(cmdLogin.ExecuteScalar());
 
-                if (count > 0)
-                {
-                    new MainWindow().Show();
-                    this.Close();
-                }
-                else
+                if (count == 0)
                 {
                     MessageBox.Show("Usuari o contrasenya incorrectes.");
+                    return;
                 }
-            }
-        }
 
-        private void BtnCancelar_Click(object sender, RoutedEventArgs e)
-        {
-            // Tancar la finestra de login quan clico cancelar
-            this.Close();
+                // 2️⃣ Obtenir IdGrup del grup logat
+                string queryGrup = "SELECT IdGrup FROM Grups WHERE Nom=@user AND Codi=@pass";
+
+                SqlCommand cmdGrup = new SqlCommand(queryGrup, conn);
+                cmdGrup.Parameters.AddWithValue("@user", usuari);
+                cmdGrup.Parameters.AddWithValue("@pass", contrasenya);
+
+                int idGrup = Convert.ToInt32(cmdGrup.ExecuteScalar());
+
+                // 3️⃣ Guardar IdGrup al camp estàtic accessible des de tot el projecte
+                grupActiu = idGrup;
+
+                // 4️⃣ Obrir MainWindow
+                MainWindow mw = new MainWindow();
+                mw.Show();
+                this.Close();
+            }
         }
     }
 }

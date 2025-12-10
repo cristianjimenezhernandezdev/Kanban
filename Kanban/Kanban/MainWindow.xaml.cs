@@ -196,7 +196,13 @@ namespace Kanban
 
         private void BtnAddParticipant_Click(object sender, RoutedEventArgs e)
         {
-            CarregarParticipantsBD();
+            AfegirParticipantsWindow apw = new AfegirParticipantsWindow();
+
+            if (apw.ShowDialog() == true)
+            {
+                CarregarParticipantsBD();      // Actualitza combobox
+                CarregarParticipants();        // Actualitza etiqueta visual al header
+            }
         }
 
         private void cmbSprintMaster_SelectionChanged(object sender, SelectionChangedEventArgs e)

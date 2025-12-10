@@ -104,6 +104,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AfegirParticipantsWindow.xaml.cs">
+      <DependentUpon>AfegirParticipantsWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="LoginWindow.xaml.cs">
       <DependentUpon>LoginWindow.xaml</DependentUpon>
     </Compile>
@@ -111,6 +114,10 @@
     <Compile Include="TascaWindow.xaml.cs">
       <DependentUpon>TascaWindow.xaml</DependentUpon>
     </Compile>
+    <Page Include="AfegirParticipantsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="LoginWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
