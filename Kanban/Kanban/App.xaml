@@ -3,60 +3,92 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              StartupUri="LoginWindow.xaml">
     <Application.Resources>
- <!-- STYLE PERSONALITZAT PER A BOTONS "ACCEPTAR" -->
-<!-- Si vull que apliqui a tots els botons trec el x:Key -->
-    <Style TargetType="Button" x:Key="BotoAcceptar">
+    <!-- Aquí dins definim tots els recursos globals de l’aplicació:stils, plantilles, colors, etc. -->
+    <!-- Si vull que apliquia a tots els botons faig un de normal i li trec el x:Key=" " -->
+    <!-- STYLE BASE: defineix l’aspecte comú de tots els botons "modernets" (colors, bordes, gradient, cantonades arrodonides, etc.) Després els altres styles (Gran, Petit) reutilitzen aquest. -->
 
-        <!-- Amplada del botó -->
+    <Style TargetType="Button" x:Key="BotoBase">
+
+        <!-- Amplada per defecte del botó -->
         <Setter Property="Width" Value="120"/>
 
-        <!-- Alçada del botó -->
+        <!-- Alçada per defecte del botó -->
         <Setter Property="Height" Value="40"/>
 
-        <!-- Color del text -->
+        <!-- Color del text del botó -->
         <Setter Property="Foreground" Value="White"/>
 
         <!-- Color del contorn del botó -->
         <Setter Property="BorderBrush" Value="DarkGreen"/>
 
-        <!-- Gruix del contorn -->
+        <!-- Gruix del contorn del botó -->
         <Setter Property="BorderThickness" Value="2"/>
 
-        <!-- Fons (Gradient vertical del botó) -->
+        <!-- Fons del botó. Utilitzem un LinearGradientBrush per fer un degradat vertical. -->
+
         <Setter Property="Background">
             <Setter.Value>
+                <!--
+                    StartPoint="0,0" = a dalt
+                    EndPoint="0,1"   = a baix
+                    De dalt a baix fa el gradient.
+                -->
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                    <!-- Color superior -->
+                    <!-- Color superior del degradat -->
                     <GradientStop Color="#4CAF50" Offset="0"/>
-                    <!-- Color inferior -->
+                    <!-- Color inferior del degradat -->
                     <GradientStop Color="#388E3C" Offset="1"/>
                 </LinearGradientBrush>
             </Setter.Value>
         </Setter>
 
-        <!-- TEMPLATE: Defineix la forma i estructura del botó -->
+        <!-- TEMPLATE = defineix com es "dibuixa" el botó visualment. Aquí canviem el botó clàssic per un Border amb cantonades arrodonides. -->
         <Setter Property="Template">
             <Setter.Value>
-
-                <!-- Plantilla de com es dibuixa el botó -->
+                <!-- Plantilla personalitzada per al control Button -->
                 <ControlTemplate TargetType="Button">
 
-                    <!-- Border = marc que envolta el contingut -->
-                    <Border Background="{TemplateBinding Background}"       <!-- Lliga el fons al definit abans -->
-                            BorderBrush="{TemplateBinding BorderBrush}"   <!-- Lliga el contorn -->
-                            BorderThickness="{TemplateBinding BorderThickness}" <!-- Gruix del contorn -->
-                            CornerRadius="20"                             <!-- Cantonades arrodonides -->
-                            Padding="{TemplateBinding Padding}">          <!-- Separació interna -->
+                    <!--
+                        Border és el contenidor visual:
+                        - Fons (Background)
+                        - Contorn (BorderBrush + BorderThickness)
+                        - Cantonades arrodonides (CornerRadius)
+                        - Padding (espai intern)
+                    -->
+                    <Border Background="{TemplateBinding Background}"          <!-- Fa servir el Background del botó -->
+                            BorderBrush="{TemplateBinding BorderBrush}"       <!-- Fa servir el BorderBrush del botó -->
+                            BorderThickness="{TemplateBinding BorderThickness}" <!-- Fa servir el gruix del contorn -->
+                            CornerRadius="20"                                  <!-- Radi de les cantonades -->
+                            Padding="{TemplateBinding Padding}">               <!-- Espai intern del contingut -->
 
-                        <!-- ContentPresenter = on es dibuixa el text del botó -->
-                        <ContentPresenter HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"/>
+                        <!-- ContentPresenter és on es pinta el contingut del botó: normalment el text (Content) o un StackPanel amb icones, etc. -->
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                 </ControlTemplate>
-
             </Setter.Value>
         </Setter>
+    </Style>
 
+    <!-- BOTÓ GRAN: Aquest Style es basa en BotoBase, però canvia la mida. Tot el demés (colors, gradient, cantonades...) ve del BotoBase. -->
+    <Style TargetType="Button" x:Key="BotoGran"
+           BasedOn="{StaticResource BotoBase}"> <!-- Hereta totes les propietats del BotoBase -->
+        
+        <!-- Amplada del botó gran -->
+        <Setter Property="Width" Value="150"/>
+
+        <!-- Alçada del botó gran -->
+        <Setter Property="Height" Value="50"/>
+    </Style>
+
+    <!-- BOTÓ PETIT: Igual que el gran, però amb una mida més reduïda. També hereta del BotoBase. -->
+    <Style TargetType="Button" x:Key="BotoPetit"
+           BasedOn="{StaticResource BotoBase}"> <!-- Hereta del BotoBase -->
+
+        <!-- Amplada del botó petit -->
+        <Setter Property="Width" Value="100"/>
+
+        <!-- Alçada del botó petit -->
+        <Setter Property="Height" Value="35"/>
     </Style>
     </Application.Resources>
 </Application>
