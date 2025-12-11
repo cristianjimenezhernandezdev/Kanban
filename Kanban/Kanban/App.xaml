@@ -93,7 +93,8 @@
     </Application.Resources>
 </Application>
 
-<!-- Exemple d'us a les altres plantilles
+<!-- 
+Exemple d'us a les altres plantilles
 <!-- Botó gran, estil verd amb cantonades arrodonides -->
 <Button Content="Guardar"
         Style="{StaticResource BotoGran}" />
@@ -101,4 +102,12 @@
 <!-- Botó petit, mateix disseny però més compacte -->
 <Button Content="OK"
         Style="{StaticResource BotoPetit}" />
+
+<!-- Botó gran basat el disseny prefabricat pero amb modificacions locals propies sense tocar la plantilla -->
+<Button Content="Configurar"
+        Style="{StaticResource BotoGran}"
+        Background="#3F51B5"     <!-- Blau -->
+        BorderBrush="DarkBlue"   <!-- Contorn blau fosc -->
+        BorderThickness="3"/>    <!-- Contorn més gruixut -->
+
 -->
