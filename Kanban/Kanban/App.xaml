@@ -3,7 +3,61 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              StartupUri="LoginWindow.xaml">
     <Application.Resources>
+ <!-- STYLE PERSONALITZAT PER A BOTONS "ACCEPTAR" -->
+<!-- Si vull que apliqui a tots els botons trec el x:Key -->
+    <Style TargetType="Button" x:Key="BotoAcceptar">
 
+        <!-- Amplada del botó -->
+        <Setter Property="Width" Value="120"/>
+
+        <!-- Alçada del botó -->
+        <Setter Property="Height" Value="40"/>
+
+        <!-- Color del text -->
+        <Setter Property="Foreground" Value="White"/>
+
+        <!-- Color del contorn del botó -->
+        <Setter Property="BorderBrush" Value="DarkGreen"/>
+
+        <!-- Gruix del contorn -->
+        <Setter Property="BorderThickness" Value="2"/>
+
+        <!-- Fons (Gradient vertical del botó) -->
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <!-- Color superior -->
+                    <GradientStop Color="#4CAF50" Offset="0"/>
+                    <!-- Color inferior -->
+                    <GradientStop Color="#388E3C" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+
+        <!-- TEMPLATE: Defineix la forma i estructura del botó -->
+        <Setter Property="Template">
+            <Setter.Value>
+
+                <!-- Plantilla de com es dibuixa el botó -->
+                <ControlTemplate TargetType="Button">
+
+                    <!-- Border = marc que envolta el contingut -->
+                    <Border Background="{TemplateBinding Background}"       <!-- Lliga el fons al definit abans -->
+                            BorderBrush="{TemplateBinding BorderBrush}"   <!-- Lliga el contorn -->
+                            BorderThickness="{TemplateBinding BorderThickness}" <!-- Gruix del contorn -->
+                            CornerRadius="20"                             <!-- Cantonades arrodonides -->
+                            Padding="{TemplateBinding Padding}">          <!-- Separació interna -->
+
+                        <!-- ContentPresenter = on es dibuixa el text del botó -->
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+
+            </Setter.Value>
+        </Setter>
+
+    </Style>
     </Application.Resources>
 </Application>
 
