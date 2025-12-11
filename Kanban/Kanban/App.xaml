@@ -93,3 +93,12 @@
     </Application.Resources>
 </Application>
 
+<!-- Exemple d'us a les altres plantilles
+<!-- Botó gran, estil verd amb cantonades arrodonides -->
+<Button Content="Guardar"
+        Style="{StaticResource BotoGran}" />
+
+<!-- Botó petit, mateix disseny però més compacte -->
+<Button Content="OK"
+        Style="{StaticResource BotoPetit}" />
+-->
