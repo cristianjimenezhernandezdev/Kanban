@@ -31,21 +31,31 @@ namespace Kanban
 
         private void CarregarParticipantsBD()
         {
+            Participants = new List<string>();
+
             using (SqlConnection conn = new SqlConnection(Database.connectionString))
             {
                 conn.Open();
 
-                string query = "SELECT Nom FROM Usuaris";
-
+                string query = "SELECT Nom FROM Usuaris WHERE IdGrup = @grup";
                 SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@grup", LoginWindow.grupActiu);
+
                 SqlDataReader reader = cmd.ExecuteReader();
 
                 cmbParticipants.Items.Clear();
+                cmbSprintMaster.Items.Clear();
 
                 while (reader.Read())
                 {
-                    cmbParticipants.Items.Add(reader["Nom"].ToString());
-                    cmbSprintMaster.Items.Add(reader["Nom"].ToString());
+                    string nom = reader["Nom"].ToString();
+
+                    // Omplir tots dos combos
+                    cmbParticipants.Items.Add(nom);
+                    cmbSprintMaster.Items.Add(nom);
+
+                    // I afegir a la llista interna (per TascaWindow)
+                    Participants.Add(nom);
                 }
             }
         }
@@ -200,8 +210,10 @@ namespace Kanban
 
             if (apw.ShowDialog() == true)
             {
-                CarregarParticipantsBD();      // Actualitza combobox
-                CarregarParticipants();        // Actualitza etiqueta visual al header
+                CarregarParticipantsBD();  // Actualitza els ComboBox
+
+                panelParticipants.Children.Clear();  // Netejar panell
+                CarregarParticipants();              // Tornar a mostrar participants
             }
         }
 
@@ -210,6 +222,28 @@ namespace Kanban
             
         }
 
+        private void btnObrirProjecte_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void cmbParticipants_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cmbParticipants.SelectedItem == null)
+                return;
+
+            string nom = cmbParticipants.SelectedItem.ToString();
+
+            foreach (Border b in panelParticipants.Children)
+            {
+                if (((TextBlock)b.Child).Text.Contains(nom))
+                    return;
+            }
+
+            panelParticipants.Children.Add(
+                CrearEtiquetaParticipant(nom, "#2196F3", 0)
+            );
+        }
 
         // ─────────────────────────────────────────────
         // DRAG & DROP ENTRE COLUMNES
@@ -292,32 +326,6 @@ namespace Kanban
             listTodo.Items.Refresh();
             listDoing.Items.Refresh();
             listDone.Items.Refresh();
-        }
-
-        private void btnObrirProjecte_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void cmbParticipants_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (cmbParticipants.SelectedItem == null)
-                return;
-
-            string nom = cmbParticipants.SelectedItem.ToString();
-
-            // OPCIONAL: evitar duplicats
-            foreach (Border b in panelParticipants.Children)
-            {
-                if (((TextBlock)b.Child).Text.Contains(nom))
-                    return; // ja existeix
-            }
-
-            // Afegir al panell
-            panelParticipants.Children.Add(
-                CrearEtiquetaParticipant(nom, "#2196F3", 0)
-            );
-            //CarregarParticipantsBD();
         }
     }
 }
