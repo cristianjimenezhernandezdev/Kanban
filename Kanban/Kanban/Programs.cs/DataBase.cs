@@ -9,8 +9,8 @@ namespace Kanban.Programs.cs
 {
     public static class Database
     {
-        //public static string connectionString ="Server=ellaboratori.cat;Port=3306;Database=amine;Uid=amine;Pwd=campa1234;SslMode=None;"
-        public static string connectionString = "Server=NITRO-AMINE;Database=ProjecteKanban;Trusted_Connection=True;";
+        public static string connectionString = "Server=ellaboratori.cat;Port=3306;Database=amine;Uid=amine;Pwd=campa123;SslMode=Disabled;";
+        //public static string connectionString = "Server=NITRO-AMINE;Database=ProjecteKanban;Trusted_Connection=True;";
 
         //private static string laMevaConnexio =
         //       ConfigurationManager.ConnectionStrings["GestioComandesConnectionString"].ConnectionString;
@@ -39,31 +39,31 @@ namespace Kanban.Programs.cs
 
 
 
-        // 🔵 SELECT → retorna DataTable
-        public static DataTable Select(string query)
-        {
-            DataTable dt = new DataTable();
+        //// 🔵 SELECT → retorna DataTable
+        //public static DataTable Select(string query)
+        //{
+        //    DataTable dt = new DataTable();
 
-            using (SqlConnection conn = new SqlConnection(connectionString))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand(query, conn);
-                SqlDataAdapter da = new SqlDataAdapter(cmd);
-                da.Fill(dt);
-            }
+        //    using (MySqlConnection conn = new MySqlConnection(connectionString))
+        //    {
+        //        conn.Open();
+        //        MySqlCommand cmd = new MySqlCommand(query, conn);
+        //        MySqlDataAdapter da = new MySqlDataAdapter(cmd);
+        //        da.Fill(dt);
+        //    }
 
-            return dt;
-        }
+        //    return dt;
+        //}
 
-        // 🔴 INSERT / UPDATE / DELETE
-        public static void Execute(string query)
-        {
-            using (SqlConnection conn = new SqlConnection(connectionString))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.ExecuteNonQuery();
-            }
-        }
+        //// 🔴 INSERT / UPDATE / DELETE
+        //public static void Execute(string query)
+        //{
+        //    using (MySqlConnection conn = new MySqlConnection(connectionString))
+        //    {
+        //        conn.Open();
+        //        MySqlCommand cmd = new MySqlCommand(query, conn);
+        //        cmd.ExecuteNonQuery();
+        //    }
+        //}
     }
 }

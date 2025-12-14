@@ -55,7 +55,7 @@
                                     IsReadOnly="False"/>
 
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Sprint Master: "
+                                <TextBlock Text="Sprint Master  "
                                        VerticalAlignment="Center"
                                        FontSize="14"
                                        Foreground="#555"/>
@@ -98,8 +98,8 @@
                         </StackPanel>
                         
                             <!-- 🟣 BOTÓ "CREAR PROJECTE" -->
-                        <Button x:Name="btnCrearProjecte"
-                                    Content="+ Projecte"
+                <Button x:Name="btnCrearProjecte"
+                                    Content="Crear Sprint"
                                     Width="80"
                                     Height="30"
                                     Grid.Column="2"
@@ -117,7 +117,7 @@
                                 Click="btnInfo_Click"/>
 
                         <Button x:Name="btnObrirProjecte"
-                                Content="Obrir"
+                                Content="Obrir Sprint"
                                 Width="80"
                                 Height="30"
                                 Grid.Column="2"

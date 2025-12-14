@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Kanban.Programs.cs;
+using MySql.Data.MySqlClient;
 
 namespace Kanban
 {
@@ -37,14 +38,14 @@ namespace Kanban
                 return;
             }
 
-            using (SqlConnection conn = new SqlConnection(Database.connectionString))
+            using (MySqlConnection conn = new MySqlConnection(Database.connectionString))
             {
                 conn.Open();
 
                 string query = @"INSERT INTO Usuaris (Nom, Cognom, IdGrup)
                                  VALUES (@nom, @cognom, @idGrup)";
 
-                SqlCommand cmd = new SqlCommand(query, conn);
+                MySqlCommand cmd = new MySqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@nom", nom);
                 cmd.Parameters.AddWithValue("@cognom", cognom);
                 cmd.Parameters.AddWithValue("@idGrup", LoginWindow.grupActiu);

@@ -107,6 +107,9 @@
     <Compile Include="AfegirParticipantsWindow.xaml.cs">
       <DependentUpon>AfegirParticipantsWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CrearProjecteWindow.xaml.cs">
+      <DependentUpon>CrearProjecteWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="LoginWindow.xaml.cs">
       <DependentUpon>LoginWindow.xaml</DependentUpon>
     </Compile>
@@ -115,6 +118,10 @@
       <DependentUpon>TascaWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="AfegirParticipantsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CrearProjecteWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -165,6 +172,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

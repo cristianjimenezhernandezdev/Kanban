@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Kanban.Programs.cs;
+using MySql.Data.MySqlClient;
 
 namespace Kanban
 {
@@ -33,15 +34,15 @@ namespace Kanban
         {
             Participants = new List<string>();
 
-            using (SqlConnection conn = new SqlConnection(Database.connectionString))
+            using (MySqlConnection conn = new MySqlConnection(Database.connectionString))
             {
                 conn.Open();
 
                 string query = "SELECT Nom FROM Usuaris WHERE IdGrup = @grup";
-                SqlCommand cmd = new SqlCommand(query, conn);
+                MySqlCommand cmd = new MySqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@grup", LoginWindow.grupActiu);
 
-                SqlDataReader reader = cmd.ExecuteReader();
+                MySqlDataReader reader = cmd.ExecuteReader();
 
                 cmbParticipants.Items.Clear();
                 cmbSprintMaster.Items.Clear();
@@ -50,7 +51,7 @@ namespace Kanban
                 {
                     string nom = reader["Nom"].ToString();
 
-                    // Omplir tots dos combos
+                    // Omplir tots dos combos amb els paricipants del grup actiu
                     cmbParticipants.Items.Add(nom);
                     cmbSprintMaster.Items.Add(nom);
 
@@ -135,22 +136,10 @@ namespace Kanban
         // ─────────────────────────────────────────────
         private void btnCrearProjecte_Click(object sender, RoutedEventArgs e)
         {
-            TascaWindow w = new TascaWindow(Participants);
+            CrearProjecteWindow projecteWindow = new CrearProjecteWindow();
 
-            if (w.ShowDialog() == true)
+            if (projecteWindow.ShowDialog() == true)
             {
-                Backlog.Add(new Tasques()
-                {
-
-                    Descripcio = w.Descripcio,
-                    Estat = "Backlog",
-                    Responsable = w.Responsable,
-                    Prioritat = w.Prioritat,
-                    DataVenciment = w.DataVenciment ?? DateTime.Now,
-                    Notes = w.Notes,
-                    DataCreacio = DateTime.Now
-                });
-
                 listBacklog.Items.Refresh();
             }
         }
