@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Security.Cryptography;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Kanban.Programs.cs;
 using MySql.Data.MySqlClient;
+using MySqlX.XDevAPI.Common;
 
 namespace Kanban
 {
@@ -30,6 +32,9 @@ namespace Kanban
             CarregarParticipantsBD();
         }
 
+        // ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+        // CARREGAR PARTICIPANTS DES DE LA BASE DE DADES
         private void CarregarParticipantsBD()
         {
             Participants = new List<string>();
@@ -61,6 +66,45 @@ namespace Kanban
             }
         }
 
+        // CARREGAR PROJECTE ACTIU AL INICIAR
+        private void CarregarProjecteActiu()
+        {
+            using (MySqlConnection conn = new MySqlConnection(Database.connectionString))
+            {
+                conn.Open();
+
+                string sql = @"SELECT Titol 
+                       FROM Projectes 
+                       WHERE IdGrup = @grup
+                       ORDER BY IdProjecte DESC
+                       LIMIT 1";
+
+                MySqlCommand cmd = new MySqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@grup", LoginWindow.grupActiu);
+
+                object result = cmd.ExecuteScalar();
+
+                if (result != null)
+                    txtSprintName.Text = result.ToString();
+            }
+        }
+
+        // PARTICIPANTS EN EL HEADER
+        private void CarregarParticipants()
+        {
+            panelParticipants.Children.Clear();
+
+            foreach (var item in cmbParticipants.Items)
+            {
+                string nom = item.ToString();
+
+                panelParticipants.Children.Add(
+                    CrearEtiquetaParticipant(nom, "#2196F3", 0)
+                );
+            }
+        }
+
+        // ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
         // ─────────────────────────────────────────────
         // CLASSE TASQUES
@@ -140,6 +184,7 @@ namespace Kanban
 
             if (projecteWindow.ShowDialog() == true)
             {
+                txtSprintName.Text = projecteWindow.TitolProjecteCreat;
                 listBacklog.Items.Refresh();
             }
         }
@@ -155,24 +200,6 @@ namespace Kanban
                 MessageBoxButton.OK,
                 MessageBoxImage.Information
             );
-        }
-
-
-        // ─────────────────────────────────────────────
-        // PARTICIPANTS EN EL HEADER
-        // ─────────────────────────────────────────────
-        private void CarregarParticipants()
-        {
-            panelParticipants.Children.Clear();
-
-            foreach (var item in cmbParticipants.Items)
-            {
-                string nom = item.ToString();
-
-                panelParticipants.Children.Add(
-                    CrearEtiquetaParticipant(nom, "#2196F3", 0)
-                );
-            }
         }
 
         private Border CrearEtiquetaParticipant(string nom, string colorHex, int numTasques)
@@ -192,7 +219,9 @@ namespace Kanban
             };
         }
 
-
+        // ─────────────────────────────────────────────
+        // BOTÓ AFEGIR PARTICIPANT
+        // ─────────────────────────────────────────────
         private void BtnAddParticipant_Click(object sender, RoutedEventArgs e)
         {
             AfegirParticipantsWindow apw = new AfegirParticipantsWindow();
@@ -206,16 +235,61 @@ namespace Kanban
             }
         }
 
+        // ─────────────────────────────────────────────
+        // COMBO SPRINT MASTER
+        // ─────────────────────────────────────────────
         private void cmbSprintMaster_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            
+            if (cmbSprintMaster.SelectedItem == null)
+                return;
+
+            string nomUsuari = cmbSprintMaster.SelectedItem.ToString();
+
+            using (MySqlConnection conn = new MySqlConnection(Database.connectionString))
+            {
+                conn.Open();
+
+                // Obtenir IdUsuari
+                string query = @"SELECT IdUsuari 
+                         FROM Usuaris 
+                         WHERE Nom = @nom AND IdGrup = @grup";
+
+                MySqlCommand cmdUsuari = new MySqlCommand(query, conn);
+                cmdUsuari.Parameters.AddWithValue("@nom", nomUsuari);
+                cmdUsuari.Parameters.AddWithValue("@grup", LoginWindow.grupActiu);
+
+                object result = cmdUsuari.ExecuteScalar();
+                if (result == null)
+                    return;
+
+                int idUsuari = Convert.ToInt32(result);
+
+                // Actualitzar projecte
+                string sqlUpdate = @"UPDATE Projectes 
+                             SET IdResponsable = @idUsuari 
+                             WHERE IdGrup = @grup 
+                             ORDER BY IdProjecte DESC 
+                             LIMIT 1";
+
+                MySqlCommand cmdUpdate = new MySqlCommand(sqlUpdate, conn);
+                cmdUpdate.Parameters.AddWithValue("@idUsuari", idUsuari);
+                cmdUpdate.Parameters.AddWithValue("@grup", LoginWindow.grupActiu);
+
+                cmdUpdate.ExecuteNonQuery();
+            }
         }
 
+        // ─────────────────────────────────────────────
+        // BOTÓ OBRIR PROJECTE
+        // ─────────────────────────────────────────────
         private void btnObrirProjecte_Click(object sender, RoutedEventArgs e)
         {
 
         }
 
+        // ─────────────────────────────────────────────
+        // COMBO PARTICIPANTS
+        // ─────────────────────────────────────────────
         private void cmbParticipants_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (cmbParticipants.SelectedItem == null)
@@ -234,6 +308,7 @@ namespace Kanban
             );
         }
 
+        // ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
         // ─────────────────────────────────────────────
         // DRAG & DROP ENTRE COLUMNES
         // ─────────────────────────────────────────────

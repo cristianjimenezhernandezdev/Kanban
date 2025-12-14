@@ -11,6 +11,8 @@ namespace Kanban
     /// </summary>
     public partial class CrearProjecteWindow : Window
     {
+
+        public string TitolProjecteCreat { get; private set; }
         public CrearProjecteWindow()
         {
             InitializeComponent();
@@ -42,6 +44,7 @@ namespace Kanban
                 cmd.ExecuteNonQuery();
             }
 
+            TitolProjecteCreat = txtTitol.Text;
             this.DialogResult = true;
             this.Close();
         }

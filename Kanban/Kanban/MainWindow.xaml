@@ -1,241 +1,241 @@
-﻿        <Window x:Class="Kanban.MainWindow"
-                xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                xmlns:local="clr-namespace:Kanban"
-                mc:Ignorable="d"
-                Title="MainWindow" Height="600" Width="1000">
+﻿<Window x:Class="Kanban.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Kanban"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="600" Width="1000">
 
-            <Grid Margin="10">
+    <Grid Margin="10">
 
-                <!-- FILES PRINCIPALS -->
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="120"/>
-                    <!-- CAPÇALERA -->
-                    <RowDefinition Height="*"/>
-                    <!-- COLUMNES -->
-                </Grid.RowDefinitions>
+        <!-- FILES PRINCIPALS -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="120"/>
+            <!-- CAPÇALERA -->
+            <RowDefinition Height="*"/>
+            <!-- COLUMNES -->
+        </Grid.RowDefinitions>
 
-                <!-- COLUMNES PRINCIPALS -->
+        <!-- COLUMNES PRINCIPALS -->
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+
+        <!-- 🔷 CAPÇALERA -->
+        <Border Grid.Row="0" Grid.ColumnSpan="4"
+                CornerRadius="10"
+                Background="#E8F4FF"
+                Padding="10"
+                Margin="0 0 0 10"
+                BorderBrush="#C9E2FF"
+                BorderThickness="1">
+
+            <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="1*"/>
                 </Grid.ColumnDefinitions>
 
+                <!-- 🟦 NOM SPRINT + MASTER -->
+                <StackPanel Grid.Column="0">
+                    <TextBox x:Name="txtSprintName"
+                                Margin="10"
+                            Text="Nom Sprint"
+                            FontSize="28"
+                            FontWeight="Bold"
+                            Foreground="#2F80ED"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            IsReadOnly="False"/>
 
-                <!-- 🔷 CAPÇALERA -->
-                <Border Grid.Row="0" Grid.ColumnSpan="4"
-                        CornerRadius="10"
-                        Background="#E8F4FF"
-                        Padding="10"
-                        Margin="0 0 0 10"
-                        BorderBrush="#C9E2FF"
-                        BorderThickness="1">
-
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="3*"/>
-                            <ColumnDefinition Width="1*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <!-- 🟦 NOM SPRINT + MASTER -->
-                        <StackPanel Grid.Column="0">
-                            <TextBox x:Name="txtSprintName"
-                                     Margin="10"
-                                    Text="Nom Sprint"
-                                    FontSize="28"
-                                    FontWeight="Bold"
-                                    Foreground="#2F80ED"
-                                    Background="Transparent"
-                                    BorderThickness="0"
-                                    IsReadOnly="False"/>
-
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Sprint Master  "
-                                       VerticalAlignment="Center"
-                                       FontSize="14"
-                                       Foreground="#555"/>
-
-                                <ComboBox x:Name="cmbSprintMaster"
-                                      Width="150"
-                                      FontSize="14"
-                                      Foreground="#2F80ED"
-                                      SelectionChanged="cmbSprintMaster_SelectionChanged"/>
-                            </StackPanel>
-                        </StackPanel>
-
-
-                        <!-- 🟡 PARTICIPANTS -->
-                        <StackPanel Grid.Column="1" Margin="10 0 0 0">
-
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Participants  "
-                                           FontSize="16"
-                                           FontWeight="SemiBold"/>
-
-                             <ComboBox x:Name="cmbParticipants"
-                                    Width="150"
-                                    FontSize="14"
-                                    Foreground="#2F80ED"
-                                    SelectionChanged="cmbParticipants_SelectionChanged"/>
-
-                        <Button Content="+"
-                                        Width="25" Height="25"
-                                        Margin="15 0 0 0"
-                                        Background="#4CAF50"
-                                        Foreground="White"
-                                        BorderBrush="#2E7D32"
-                                        Click="BtnAddParticipant_Click"/>
-                            </StackPanel>
-
-                            <!-- Aquí afegirem visualment els participants -->
-                            <WrapPanel x:Name="panelParticipants"
-                                       Margin="0 5 0 0"/>
-                        </StackPanel>
-                        
-                            <!-- 🟣 BOTÓ "CREAR PROJECTE" -->
-                <Button x:Name="btnCrearProjecte"
-                                    Content="Crear Sprint"
-                                    Width="80"
-                                    Height="30"
-                                    Grid.Column="2"
-                                    HorizontalAlignment="Right"
-                                    VerticalAlignment="Top"
-                                    Click="btnCrearProjecte_Click"/>
-
-                        <!-- 🟣 BOTÓ "INFO" -->
-                        <Button x:Name="btnInfo"
-                                Content="Info"
-                                Width="80"
-                                Height="30" Grid.Column="2"
-                                HorizontalAlignment="Right"
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Sprint Master  "
                                 VerticalAlignment="Center"
-                                Click="btnInfo_Click"/>
+                                FontSize="14"
+                                Foreground="#555"/>
 
-                        <Button x:Name="btnObrirProjecte"
-                                Content="Obrir Sprint"
-                                Width="80"
-                                Height="30"
-                                Grid.Column="2"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Bottom"
-                                Click="btnObrirProjecte_Click"/>
-            </Grid>
-                </Border>
+                        <ComboBox x:Name="cmbSprintMaster"
+                                Width="150"
+                                FontSize="14"
+                                Foreground="#2F80ED"
+                                SelectionChanged="cmbSprintMaster_SelectionChanged"/>
+                    </StackPanel>
+                </StackPanel>
 
 
+                <!-- 🟡 PARTICIPANTS -->
+                <StackPanel Grid.Column="1" Margin="10 0 0 0">
 
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Participants  "
+                                    FontSize="16"
+                                    FontWeight="SemiBold"/>
 
-                <!-- 🔵 BACKLOG -->
-                <GroupBox Header="Backlog"
-                          Grid.Row="1" Grid.Column="0" Margin="5">
-                    <Grid>
-                        <ListBox x:Name="listBacklog" Margin="5"
-                                 AllowDrop="True"
-                                 PreviewMouseMove="ListBox_PreviewMouseMove"
-                                 Drop="ListBox_Drop"
-                                 DragOver="ListBox_DragOver"
-                                 SelectionMode="Single"/>
+                        <ComboBox x:Name="cmbParticipants"
+                            Width="150"
+                            FontSize="14"
+                            Foreground="#2F80ED"
+                            SelectionChanged="cmbParticipants_SelectionChanged"/>
 
-                        <!-- Botó circular per afegir tasca -->
-                        <Button Content="+"
-                                Width="40" Height="40"
-                                FontSize="24"
-                                Background="#3498db"
+                <Button Content="+"
+                                Width="25" Height="25"
+                                Margin="15 0 0 0"
+                                Background="#4CAF50"
                                 Foreground="White"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Bottom"
-                                Margin="10"
-                                Click="btnAddBacklog_Click">
-                            <Button.Style>
-                                <Style TargetType="Button">
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="Button">
-                                                <Border CornerRadius="20"
-                                                        Background="{TemplateBinding Background}">
-                                                    <ContentPresenter HorizontalAlignment="Center"
-                                                                      VerticalAlignment="Center"/>
-                                                </Border>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </Button.Style>
-                        </Button>
-                    </Grid>
-                </GroupBox>
+                                BorderBrush="#2E7D32"
+                                Click="BtnAddParticipant_Click"/>
+                    </StackPanel>
+
+                    <!-- Aquí afegirem visualment els participants -->
+                    <WrapPanel x:Name="panelParticipants"
+                                Margin="0 5 0 0"/>
+                </StackPanel>
+                        
+                    <!-- 🟣 BOTÓ "CREAR PROJECTE" -->
+        <Button x:Name="btnCrearProjecte"
+                            Content="Crear Sprint"
+                            Width="80"
+                            Height="30"
+                            Grid.Column="2"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Top"
+                            Click="btnCrearProjecte_Click"/>
+
+                <!-- 🟣 BOTÓ "INFO" -->
+                <Button x:Name="btnInfo"
+                        Content="Info"
+                        Width="80"
+                        Height="30" Grid.Column="2"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Click="btnInfo_Click"/>
+
+                <Button x:Name="btnObrirProjecte"
+                        Content="Obrir Sprint"
+                        Width="80"
+                        Height="30"
+                        Grid.Column="2"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Click="btnObrirProjecte_Click"/>
+    </Grid>
+        </Border>
 
 
 
-                <!-- 🟠 TODO -->
-                <GroupBox Header="To Do"
-                          Grid.Row="1" Grid.Column="1" Margin="5">
-                    <Grid>
-                        <ListBox x:Name="listTodo" Margin="5"
-                                 AllowDrop="True"
-                                 PreviewMouseMove="ListBox_PreviewMouseMove"
-                                 Drop="ListBox_Drop"
-                                 DragOver="ListBox_DragOver"
-                                 SelectionMode="Single"/>
 
-                        <Button Content="+"
-                                Width="40" Height="40"
-                                FontSize="24"
-                                Background="#2ecc71"
-                                Foreground="White"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Bottom"
-                                Margin="10"
-                                Click="btnAddTodo_Click">
-                            <Button.Style>
-                                <Style TargetType="Button">
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="Button">
-                                                <Border CornerRadius="20"
-                                                        Background="{TemplateBinding Background}">
-                                                    <ContentPresenter HorizontalAlignment="Center"
-                                                                      VerticalAlignment="Center"/>
-                                                </Border>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </Button.Style>
+        <!-- 🔵 BACKLOG -->
+        <GroupBox Header="Backlog"
+                    Grid.Row="1" Grid.Column="0" Margin="5">
+            <Grid>
+                <ListBox x:Name="listBacklog" Margin="5"
+                            AllowDrop="True"
+                            PreviewMouseMove="ListBox_PreviewMouseMove"
+                            Drop="ListBox_Drop"
+                            DragOver="ListBox_DragOver"
+                            SelectionMode="Single"/>
 
-                        </Button>
-                    </Grid>
-                </GroupBox>
-
-
-
-                <!-- 🟣 DOING -->
-                <GroupBox Header="Doing"
-                          Grid.Row="1" Grid.Column="2" Margin="5">
-                    <ListBox x:Name="listDoing" Margin="5"
-                             AllowDrop="True"
-                             PreviewMouseMove="ListBox_PreviewMouseMove"
-                             Drop="ListBox_Drop"
-                             DragOver="ListBox_DragOver"
-                             SelectionMode="Single"/>
-                </GroupBox>
-
-
-                <!-- 🟢 DONE -->
-                <GroupBox Header="Done"
-                          Grid.Row="1" Grid.Column="3" Margin="5">
-                    <ListBox x:Name="listDone" Margin="5"
-                             AllowDrop="True"
-                             PreviewMouseMove="ListBox_PreviewMouseMove"
-                             Drop="ListBox_Drop"
-                             DragOver="ListBox_DragOver"
-                             SelectionMode="Single"/>
-                </GroupBox>
-
+                <!-- Botó circular per afegir tasca -->
+                <Button Content="+"
+                        Width="40" Height="40"
+                        FontSize="24"
+                        Background="#3498db"
+                        Foreground="White"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Margin="10"
+                        Click="btnAddBacklog_Click">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border CornerRadius="20"
+                                                Background="{TemplateBinding Background}">
+                                            <ContentPresenter HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+                </Button>
             </Grid>
-        </Window>
+        </GroupBox>
+
+
+
+        <!-- 🟠 TODO -->
+        <GroupBox Header="To Do"
+                    Grid.Row="1" Grid.Column="1" Margin="5">
+            <Grid>
+                <ListBox x:Name="listTodo" Margin="5"
+                            AllowDrop="True"
+                            PreviewMouseMove="ListBox_PreviewMouseMove"
+                            Drop="ListBox_Drop"
+                            DragOver="ListBox_DragOver"
+                            SelectionMode="Single"/>
+
+                <Button Content="+"
+                        Width="40" Height="40"
+                        FontSize="24"
+                        Background="#2ecc71"
+                        Foreground="White"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Margin="10"
+                        Click="btnAddTodo_Click">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border CornerRadius="20"
+                                                Background="{TemplateBinding Background}">
+                                            <ContentPresenter HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+
+                </Button>
+            </Grid>
+        </GroupBox>
+
+
+
+        <!-- 🟣 DOING -->
+        <GroupBox Header="Doing"
+                    Grid.Row="1" Grid.Column="2" Margin="5">
+            <ListBox x:Name="listDoing" Margin="5"
+                        AllowDrop="True"
+                        PreviewMouseMove="ListBox_PreviewMouseMove"
+                        Drop="ListBox_Drop"
+                        DragOver="ListBox_DragOver"
+                        SelectionMode="Single"/>
+        </GroupBox>
+
+
+        <!-- 🟢 DONE -->
+        <GroupBox Header="Done"
+                    Grid.Row="1" Grid.Column="3" Margin="5">
+            <ListBox x:Name="listDone" Margin="5"
+                        AllowDrop="True"
+                        PreviewMouseMove="ListBox_PreviewMouseMove"
+                        Drop="ListBox_Drop"
+                        DragOver="ListBox_DragOver"
+                        SelectionMode="Single"/>
+        </GroupBox>
+
+    </Grid>
+</Window>
