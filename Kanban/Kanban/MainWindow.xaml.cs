@@ -297,16 +297,65 @@ namespace Kanban
 
             string nom = cmbParticipants.SelectedItem.ToString();
 
+            // Evitar duplicats visuals
             foreach (Border b in panelParticipants.Children)
             {
                 if (((TextBlock)b.Child).Text.Contains(nom))
                     return;
             }
 
+            using (MySqlConnection conn = new MySqlConnection(Database.connectionString))
+            {
+                conn.Open();
+
+                // Obtenir IdUsuari
+                string sqlUsuari = @"SELECT IdUsuari 
+                             FROM Usuaris 
+                             WHERE Nom = @nom AND IdGrup = @grup";
+
+                MySqlCommand cmdUsuari = new MySqlCommand(sqlUsuari, conn);
+                cmdUsuari.Parameters.AddWithValue("@nom", nom);
+                cmdUsuari.Parameters.AddWithValue("@grup", LoginWindow.grupActiu);
+
+                object resultUsuari = cmdUsuari.ExecuteScalar();
+                if (resultUsuari == null)
+                    return;
+
+                int idUsuari = Convert.ToInt32(resultUsuari);
+
+                // Obtenir IdProjecte actiu (últim del grup)
+                string sqlProjecte = @"SELECT IdProjecte 
+                               FROM Projectes 
+                               WHERE IdGrup = @grup 
+                               ORDER BY IdProjecte DESC 
+                               LIMIT 1";
+
+                MySqlCommand cmdProjecte = new MySqlCommand(sqlProjecte, conn);
+                cmdProjecte.Parameters.AddWithValue("@grup", LoginWindow.grupActiu);
+
+                object resultProjecte = cmdProjecte.ExecuteScalar();
+                if (resultProjecte == null)
+                    return;
+
+                int idProjecte = Convert.ToInt32(resultProjecte);
+
+                // Insertar relació Projecte i Usuari (si no existeix)
+                string sqlInsert = @"INSERT IGNORE INTO Projecte_Usuari (IdProjecte, IdUsuari)
+                             VALUES (@idProjecte, @idUsuari)";
+
+                MySqlCommand cmdInsert = new MySqlCommand(sqlInsert, conn);
+                cmdInsert.Parameters.AddWithValue("@idProjecte", idProjecte);
+                cmdInsert.Parameters.AddWithValue("@idUsuari", idUsuari);
+
+                cmdInsert.ExecuteNonQuery();
+            }
+
+            // Afegir visualment al MainWindow
             panelParticipants.Children.Add(
                 CrearEtiquetaParticipant(nom, "#2196F3", 0)
             );
         }
+
 
         // ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
         // ─────────────────────────────────────────────
