@@ -284,7 +284,33 @@ namespace Kanban
         // ─────────────────────────────────────────────
         private void btnObrirProjecte_Click(object sender, RoutedEventArgs e)
         {
+            ObrirProjecte obrirProjecteWind = new ObrirProjecte();
 
+            if (obrirProjecteWind.ShowDialog() == true)
+            {
+                // 1️⃣ Mostrar el títol del projecte
+                txtSprintName.Text = obrirProjecteWind.TitolProjecteSeleccionat;
+
+                // 2️⃣ Si té responsable, seleccionar-lo al combo
+                if (obrirProjecteWind.IdResponsableSeleccionat.HasValue)
+                {
+                    using (MySqlConnection conn = new MySqlConnection(Database.connectionString))
+                    {
+                        conn.Open();
+
+                        string sql = @"SELECT Nom 
+                               FROM Usuaris 
+                               WHERE IdUsuari = @id";
+
+                        MySqlCommand cmd = new MySqlCommand(sql, conn);
+                        cmd.Parameters.AddWithValue("@id", obrirProjecteWind.IdResponsableSeleccionat.Value);
+
+                        object nom = cmd.ExecuteScalar();
+                        if (nom != null)
+                            cmbSprintMaster.SelectedItem = nom.ToString();
+                    }
+                }
+            }
         }
 
         // ─────────────────────────────────────────────

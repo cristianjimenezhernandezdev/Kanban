@@ -113,6 +113,9 @@
     <Compile Include="LoginWindow.xaml.cs">
       <DependentUpon>LoginWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ObrirProjecte.xaml.cs">
+      <DependentUpon>ObrirProjecte.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Programs.cs\DataBase.cs" />
     <Compile Include="TascaWindow.xaml.cs">
       <DependentUpon>TascaWindow.xaml</DependentUpon>
@@ -141,6 +144,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="ObrirProjecte.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="TascaWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
