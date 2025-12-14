@@ -29,7 +29,19 @@ namespace Kanban
         public MainWindow()
         {
             InitializeComponent();
+            Backlog = new List<Tasques>();
+            Todo = new List<Tasques>();
+            Doing = new List<Tasques>();
+            Done = new List<Tasques>();
+
+            listBacklog.ItemsSource = Backlog;
+            listTodo.ItemsSource = Todo;
+            listDoing.ItemsSource = Doing;
+            listDone.ItemsSource = Done;
+
             CarregarParticipantsBD();
+            CarregarProjecteActiu();
+            CarregarTasquesProjecteActiu();
         }
 
         // ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -111,6 +123,10 @@ namespace Kanban
         // ─────────────────────────────────────────────
         public class Tasques
         {
+            public int IdTasca { get; set; }
+            public int IdProjecte { get; set; }
+            public byte IdColumna { get; set; }
+
             public string Titol { get; set; }
             public string Descripcio { get; set; }
             public string Estat { get; set; }
@@ -133,19 +149,29 @@ namespace Kanban
 
             if (w.ShowDialog() == true)
             {
-                Backlog.Add(new Tasques()
+                Tasques nova = new Tasques
                 {
-                    
+                    Titol = w.Descripcio,
                     Descripcio = w.Descripcio,
                     Estat = "Backlog",
                     Responsable = w.Responsable,
                     Prioritat = w.Prioritat,
-                    DataVenciment = w.DataVenciment ?? DateTime.Now,
+                    DataVenciment = w.DataVenciment ?? DateTime.MinValue,
                     Notes = w.Notes,
-                    DataCreacio = DateTime.Now
-                });
+                    DataCreacio = DateTime.Now,
+                    IdColumna = 1
+                };
 
-                listBacklog.Items.Refresh();
+                try
+                {
+                    nova.IdTasca = InserirTascaBD(nova);
+                    Backlog.Add(nova);
+                    listBacklog.Items.Refresh();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error al guardar la tasca: " + ex.Message);
+                }
             }
         }
 
@@ -159,19 +185,29 @@ namespace Kanban
 
             if (w.ShowDialog() == true)
             {
-                Todo.Add(new Tasques()
+                Tasques nova = new Tasques
                 {
-                   
+                    Titol = w.Descripcio,
                     Descripcio = w.Descripcio,
                     Estat = "ToDo",
                     Responsable = w.Responsable,
                     Prioritat = w.Prioritat,
-                    DataVenciment = w.DataVenciment ?? DateTime.Now,
+                    DataVenciment = w.DataVenciment ?? DateTime.MinValue,
                     Notes = w.Notes,
-                    DataCreacio = DateTime.Now
-                });
+                    DataCreacio = DateTime.Now,
+                    IdColumna = 2
+                };
 
-                listTodo.Items.Refresh();
+                try
+                {
+                    nova.IdTasca = InserirTascaBD(nova);
+                    Todo.Add(nova);
+                    listTodo.Items.Refresh();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error al guardar la tasca: " + ex.Message);
+                }
             }
         }
 
@@ -185,7 +221,7 @@ namespace Kanban
             if (projecteWindow.ShowDialog() == true)
             {
                 txtSprintName.Text = projecteWindow.TitolProjecteCreat;
-                listBacklog.Items.Refresh();
+                CarregarTasquesProjecteActiu();
             }
         }
 
@@ -340,7 +376,7 @@ namespace Kanban
                 int idProjecte = Convert.ToInt32(resultProjecte);
 
                 // Insertar relació Projecte i Usuari (si no existeix)
-                string sqlInsert = @"INSERT IGNORE INTO Projecte_Usuari (IdProjecte, IdUsuari)
+                string sqlInsert = @"INSERT IGNORE INTO Usuaris_projectes (IdProjecte, IdUsuari)
                              VALUES (@idProjecte, @idUsuari)";
 
                 MySqlCommand cmdInsert = new MySqlCommand(sqlInsert, conn);
@@ -412,26 +448,39 @@ namespace Kanban
             else if (_sourceListBox == listDoing) Doing.Remove(tasca);
             else if (_sourceListBox == listDone) Done.Remove(tasca);
 
-            // 2. Afegir a la llista destí i actualitzar Estat
+            // 2. Afegir a la llista destí i actualitzar Estat / IdColumna
             if (targetListBox == listBacklog)
             {
                 tasca.Estat = "Backlog";
+                tasca.IdColumna = 1;
                 Backlog.Add(tasca);
             }
             else if (targetListBox == listTodo)
             {
                 tasca.Estat = "ToDo";
+                tasca.IdColumna = 2;
                 Todo.Add(tasca);
             }
             else if (targetListBox == listDoing)
             {
                 tasca.Estat = "Doing";
+                tasca.IdColumna = 3;
                 Doing.Add(tasca);
             }
             else if (targetListBox == listDone)
             {
                 tasca.Estat = "Done";
+                tasca.IdColumna = 4;
                 Done.Add(tasca);
+            }
+
+            try
+            {
+                ActualitzarColumnaTascaBD(tasca);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error al actualitzar la columna: " + ex.Message);
             }
 
             // 3. Refrescar totes les columnes
@@ -439,6 +488,209 @@ namespace Kanban
             listTodo.Items.Refresh();
             listDoing.Items.Refresh();
             listDone.Items.Refresh();
+        }
+
+        private void CarregarTasquesProjecteActiu()
+        {
+            using (MySqlConnection conn = new MySqlConnection(Database.connectionString))
+            {
+                conn.Open();
+                int? idProjecte = ObtenirProjecteActiuId(conn);
+                Backlog.Clear();
+                Todo.Clear();
+                Doing.Clear();
+                Done.Clear();
+
+                if (!idProjecte.HasValue)
+                {
+                    listBacklog.Items.Refresh();
+                    listTodo.Items.Refresh();
+                    listDoing.Items.Refresh();
+                    listDone.Items.Refresh();
+                    return;
+                }
+
+                const string sql = @"SELECT t.IdTasca,
+                                               t.IdProjecte,
+                                               t.IdColumna,
+                                               t.IdUsuariResponsable,
+                                               t.Descripcio,
+                                               t.Prioritat,
+                                               t.DataCreacio,
+                                               t.DataVenciment,
+                                               u.Nom AS NomResponsable
+                                        FROM Tasca t
+                                        LEFT JOIN Usuaris u ON u.IdUsuari = t.IdUsuariResponsable
+                                        WHERE t.IdProjecte = @idProjecte";
+
+                using (MySqlCommand cmd = new MySqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@idProjecte", idProjecte.Value);
+
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            Tasques tasca = new Tasques
+                            {
+                                IdTasca = Convert.ToInt32(reader["IdTasca"]),
+                                IdProjecte = Convert.ToInt32(reader["IdProjecte"]),
+                                IdColumna = Convert.ToByte(reader["IdColumna"]),
+                                Descripcio = reader["Descripcio"].ToString(),
+                                Titol = reader["Descripcio"].ToString(),
+                                Responsable = reader["NomResponsable"] == DBNull.Value
+                                    ? null
+                                    : reader["NomResponsable"].ToString(),
+                                Prioritat = reader["Prioritat"] == DBNull.Value
+                                    ? 0
+                                    : Convert.ToInt32(reader["Prioritat"]),
+                                DataCreacio = reader["DataCreacio"] == DBNull.Value
+                                    ? DateTime.MinValue
+                                    : Convert.ToDateTime(reader["DataCreacio"]),
+                                DataVenciment = reader["DataVenciment"] == DBNull.Value
+                                    ? DateTime.MinValue
+                                    : Convert.ToDateTime(reader["DataVenciment"])
+                            };
+
+                            switch (tasca.IdColumna)
+                            {
+                                case 1:
+                                    tasca.Estat = "Backlog";
+                                    Backlog.Add(tasca);
+                                    break;
+                                case 2:
+                                    tasca.Estat = "ToDo";
+                                    Todo.Add(tasca);
+                                    break;
+                                case 3:
+                                    tasca.Estat = "Doing";
+                                    Doing.Add(tasca);
+                                    break;
+                                case 4:
+                                    tasca.Estat = "Done";
+                                    Done.Add(tasca);
+                                    break;
+                            }
+                        }
+                    }
+                }
+
+                listBacklog.Items.Refresh();
+                listTodo.Items.Refresh();
+                listDoing.Items.Refresh();
+                listDone.Items.Refresh();
+            }
+        }
+
+        private int InserirTascaBD(Tasques tasca)
+        {
+            using (MySqlConnection conn = new MySqlConnection(Database.connectionString))
+            {
+                conn.Open();
+
+                int? idProjecte = ObtenirProjecteActiuId(conn);
+                if (!idProjecte.HasValue)
+                {
+                    throw new InvalidOperationException("No hi ha cap projecte actiu per al grup actual.");
+                }
+
+                tasca.IdProjecte = idProjecte.Value;
+                int? idUsuariResponsable = null;
+                if (!string.IsNullOrEmpty(tasca.Responsable))
+                {
+                    idUsuariResponsable = ObtenirIdUsuariPerNom(conn, tasca.Responsable);
+                }
+
+                const string sql = @"INSERT INTO Tasca
+    (IdProjecte, IdColumna, IdUsuariResponsable, Descripcio, Prioritat, DataCreacio, DataVenciment)
+VALUES
+    (@idProjecte, @idColumna, @idUsuariResponsable, @descripcio, @prioritat, @dataCreacio, @dataVenciment);
+SELECT LAST_INSERT_ID();";
+
+                using (MySqlCommand cmd = new MySqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@idProjecte", tasca.IdProjecte);
+                    cmd.Parameters.AddWithValue("@idColumna", tasca.IdColumna);
+                    cmd.Parameters.AddWithValue("@idUsuariResponsable",
+                        (object)idUsuariResponsable ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@descripcio", tasca.Descripcio);
+                    cmd.Parameters.AddWithValue("@prioritat", tasca.Prioritat);
+                    cmd.Parameters.AddWithValue("@dataCreacio", tasca.DataCreacio);
+                    cmd.Parameters.AddWithValue("@dataVenciment",
+                        tasca.DataVenciment == DateTime.MinValue
+                            ? (object)DBNull.Value
+                            : tasca.DataVenciment);
+
+                    object result = cmd.ExecuteScalar();
+                    return Convert.ToInt32(result);
+                }
+            }
+        }
+
+        private void ActualitzarColumnaTascaBD(Tasques tasca)
+        {
+            if (tasca.IdTasca <= 0)
+            {
+                return;
+            }
+
+            using (MySqlConnection conn = new MySqlConnection(Database.connectionString))
+            {
+                conn.Open();
+
+                const string sql = @"UPDATE Tasca
+                             SET IdColumna = @idColumna
+                             WHERE IdTasca = @idTasca";
+
+                using (MySqlCommand cmd = new MySqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@idColumna", tasca.IdColumna);
+                    cmd.Parameters.AddWithValue("@idTasca", tasca.IdTasca);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        private int? ObtenirProjecteActiuId(MySqlConnection conn)
+        {
+            const string sqlProjecte = @"SELECT IdProjecte 
+                                   FROM Projectes 
+                                   WHERE IdGrup = @grup 
+                                   ORDER BY IdProjecte DESC 
+                                   LIMIT 1";
+
+            using (MySqlCommand cmdProjecte = new MySqlCommand(sqlProjecte, conn))
+            {
+                cmdProjecte.Parameters.AddWithValue("@grup", LoginWindow.grupActiu);
+                object result = cmdProjecte.ExecuteScalar();
+                if (result == null || result == DBNull.Value)
+                {
+                    return null;
+                }
+
+                return Convert.ToInt32(result);
+            }
+        }
+
+        private int? ObtenirIdUsuariPerNom(MySqlConnection conn, string nomUsuari)
+        {
+            const string sql = @"SELECT IdUsuari 
+                         FROM Usuaris 
+                         WHERE Nom = @nom AND IdGrup = @grup";
+
+            using (MySqlCommand cmd = new MySqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@nom", nomUsuari);
+                cmd.Parameters.AddWithValue("@grup", LoginWindow.grupActiu);
+
+                object result = cmd.ExecuteScalar();
+                if (result == null || result == DBNull.Value)
+                {
+                    return null;
+                }
+
+                return Convert.ToInt32(result);
+            }
         }
     }
 }
