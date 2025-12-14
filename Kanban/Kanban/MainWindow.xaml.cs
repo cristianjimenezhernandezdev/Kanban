@@ -340,7 +340,7 @@ namespace Kanban
                 int idProjecte = Convert.ToInt32(resultProjecte);
 
                 // Insertar relació Projecte i Usuari (si no existeix)
-                string sqlInsert = @"INSERT IGNORE INTO Projecte_Usuari (IdProjecte, IdUsuari)
+                string sqlInsert = @"INSERT IGNORE INTO Usuaris_projectes (IdProjecte, IdUsuari)
                              VALUES (@idProjecte, @idUsuari)";
 
                 MySqlCommand cmdInsert = new MySqlCommand(sqlInsert, conn);
