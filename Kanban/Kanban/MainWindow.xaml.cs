@@ -13,7 +13,7 @@ namespace Kanban
 {
     public partial class MainWindow : Window
     {
-        // Llistes de cada columna
+        // Llistes de cada columna a llistes
         public List<Tasques> Backlog { get; set; }
         public List<Tasques> Todo { get; set; }
         public List<Tasques> Doing { get; set; }
