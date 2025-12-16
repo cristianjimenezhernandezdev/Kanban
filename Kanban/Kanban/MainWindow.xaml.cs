@@ -628,10 +628,10 @@ namespace Kanban
                 }
 
                 const string sql = @"INSERT INTO Tasca
-    (IdProjecte, IdColumna, IdUsuariResponsable, Descripcio, Prioritat, DataCreacio, DataVenciment)
-VALUES
-    (@idProjecte, @idColumna, @idUsuariResponsable, @descripcio, @prioritat, @dataCreacio, @dataVenciment);
-SELECT LAST_INSERT_ID();";
+                                        (IdProjecte, IdColumna, IdUsuariResponsable, Descripcio, Prioritat, DataCreacio, DataVenciment)
+                                    VALUES
+                                        (@idProjecte, @idColumna, @idUsuariResponsable, @descripcio, @prioritat, @dataCreacio, @dataVenciment);
+                                    SELECT LAST_INSERT_ID();";
 
                 using (MySqlCommand cmd = new MySqlCommand(sql, conn))
                 {
