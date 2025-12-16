@@ -278,7 +278,11 @@ namespace Kanban
         private void btnInfo_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show(
-                "Aplicació Kanban creada per Cistian i Amine.\nVersió 1.0\nGestiona tasques i projectes desde la base de dades.",
+                "Aplicació Kanban creada per Cistian i Amine.\nVersió 1.0\nGestiona tasques i projectes desde la base de dades.\r\n1. " +
+                "Afegeix participants al projecte des del desplegable.\r\n2. Només els participants afegits poden ser assignats " +
+                "com a responsables de tasques.\r\n3. Crea tasques amb el botó \"+\" de cada columna.\r\n4. Assigna prioritat " +
+                "(Alta, Mitja, Baixa) i responsable a cada tasca.\r\n5. Pots arrossegar les tasques entre columnes.\r\n6. " +
+                "Fes doble clic sobre una tasca per editar-la.",
                 "Informació",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information

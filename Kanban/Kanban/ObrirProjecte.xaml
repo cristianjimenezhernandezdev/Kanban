@@ -24,8 +24,8 @@
         <!-- BOTÓ -->
         <Button Grid.Row="2"
          Content="Seleccionar"
-         Height="35"
-         Width="100"
+         Height="35" Style="{StaticResource BotoBase}"
+         Width="100" Background="LightGray" Foreground="Black"
          HorizontalAlignment="Center"
          Margin="0,117,0,-97"
          Click="BtnSeleccionar_Click"/>

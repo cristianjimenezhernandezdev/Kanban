@@ -94,15 +94,12 @@
 
                 <!-- 🟦 NOM SPRINT + MASTER -->
                 <StackPanel Grid.Column="0">
-                    <TextBox x:Name="txtSprintName"
-                                Margin="10"
-                            Text="Nom Sprint"
-                            FontSize="28"
-                            FontWeight="Bold"
-                            Foreground="#2F80ED"
-                            Background="Transparent"
-                            BorderThickness="0"
-                            IsReadOnly="False"/>
+                    <TextBlock x:Name="txtSprintName"
+                               Margin="10"
+                               Text="Nom Sprint"
+                               FontSize="28"
+                               FontWeight="Bold"
+                               Foreground="#2F80ED"/>
 
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="Sprint Master  "
@@ -148,28 +145,28 @@
                 </StackPanel>
                         
                     <!-- 🟣 BOTÓ "CREAR PROJECTE" -->
-        <Button x:Name="btnCrearProjecte"
+                <Button x:Name="btnCrearProjecte" Style="{StaticResource BotoBase}"
                             Content="Crear Sprint"
-                            Width="80"
-                            Height="30"
+                            Width="80" Background="LightGray" Foreground="Black"
+                            Height="25" BorderBrush="SkyBlue"
                             Grid.Column="2"
                             HorizontalAlignment="Right"
                             VerticalAlignment="Top"
                             Click="btnCrearProjecte_Click"/>
 
                 <!-- 🟣 BOTÓ "INFO" -->
-                <Button x:Name="btnInfo"
-                        Content="Info"
+                <Button x:Name="btnInfo" Style="{StaticResource BotoBase}"
+                        Content="Info" Background="SkyBlue" Foreground="Black"
                         Width="80"
-                        Height="30" Grid.Column="2"
+                        Height="25" Grid.Column="2"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Center"
                         Click="btnInfo_Click"/>
 
-                <Button x:Name="btnObrirProjecte"
+                <Button x:Name="btnObrirProjecte" Style="{StaticResource BotoBase}"
                         Content="Obrir Sprint"
-                        Width="80"
-                        Height="30"
+                        Width="80" BorderBrush="SkyBlue"
+                        Height="25"  Background="LightGray" Foreground="Black"
                         Grid.Column="2"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Bottom"

@@ -30,13 +30,13 @@
         </StackPanel>
 
         <Button Grid.Row="2" Height="30" Width="120" Margin="18,80,0,46"
-                Content="Iniciar Sessió"
-                HorizontalAlignment="Left"
+                Content="Iniciar Sessió" Style="{StaticResource BotoBase}"
+                HorizontalAlignment="Left" Background="LightGray" Foreground="Black"
                 Click="BtnLogin_Click"/>
 
         <Button Grid.Row="2" Height="30" Width="120" Margin="0,80,20,46"
-         Content="Cancelar"
-         HorizontalAlignment="Right"
+         Content="Cancelar" Style="{StaticResource BotoBase}"
+         HorizontalAlignment="Right" Background="LightGray" Foreground="Black"
          Click="BtnCancelar_Click" RenderTransformOrigin="0.487,1.221"/>
     </Grid>
 </Window>

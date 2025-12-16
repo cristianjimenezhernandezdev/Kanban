@@ -20,7 +20,7 @@
             <Setter Property="Foreground" Value="White"/>
 
             <!-- Color del contorn del botó -->
-            <Setter Property="BorderBrush" Value="DarkGreen"/>
+            <Setter Property="BorderBrush" Value="AliceBlue"/>
 
             <!-- Gruix del contorn del botó -->
             <Setter Property="BorderThickness" Value="2"/>

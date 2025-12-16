@@ -30,9 +30,8 @@
         <TextBlock Text="Data venciment:" Grid.Row="4"/>
         <DatePicker x:Name="dpDataVenciment" Grid.Row="4" Margin="0 20 0 10"/>
 
-        <Button Content="Afegir"
-                Grid.Row="5"
-                Width="120" Height="35"
+        <Button Content="Acceptar" Style="{StaticResource BotoBase}"
+                Grid.Row="5" Background="LightGray" Foreground="Black"
                 HorizontalAlignment="Center"
                 Click="BtnAceptar_Click"/>
     </Grid>
