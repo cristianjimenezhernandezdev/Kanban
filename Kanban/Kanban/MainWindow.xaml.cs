@@ -1,34 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Security.Cryptography;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Kanban.Programs.cs;
-using MySql.Data.MySqlClient;
-using MySqlX.XDevAPI.Common;
 
 namespace Kanban
 {
     public partial class MainWindow : Window
     {
-        // Llistes de cada columna
+        #region Propietats i camps
+
         public List<Tasques> Backlog { get; set; }
         public List<Tasques> Todo { get; set; }
         public List<Tasques> Doing { get; set; }
         public List<Tasques> Done { get; set; }
-
-        // Exemple de participants
         public List<string> Participants { get; set; }
 
-        // Camps per al drag & drop
         private Tasques _draggedTask;
         private ListBox _sourceListBox;
+        private readonly KanbanService _kanbanService;
+
+        #endregion
+
+        #region Constructor
 
         public MainWindow()
         {
             InitializeComponent();
+            _kanbanService = new KanbanService();
+            InicialitzarLlistes();
+            CarregarDadesInicials();
+        }
+
+        private void InicialitzarLlistes()
+        {
             Backlog = new List<Tasques>();
             Todo = new List<Tasques>();
             Doing = new List<Tasques>();
@@ -38,129 +44,67 @@ namespace Kanban
             listTodo.ItemsSource = Todo;
             listDoing.ItemsSource = Doing;
             listDone.ItemsSource = Done;
+        }
 
+        private void CarregarDadesInicials()
+        {
             CarregarParticipantsBD();
             CarregarProjecteActiu();
             CarregarTasquesProjecteActiu();
         }
 
-        // ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+        #endregion
 
-        // CARREGAR PARTICIPANTS DES DE LA BASE DE DADES
+        #region Carregar dades
+
         private void CarregarParticipantsBD()
         {
-            Participants = new List<string>();
+            Participants = _kanbanService.CarregarParticipants(LoginWindow.grupActiu);
 
-            using (MySqlConnection conn = new MySqlConnection(Database.connectionString))
+            cmbParticipants.Items.Clear();
+            cmbSprintMaster.Items.Clear();
+
+            foreach (var nom in Participants)
             {
-                conn.Open();
-
-                string query = "SELECT Nom FROM Usuaris WHERE IdGrup = @grup";
-                MySqlCommand cmd = new MySqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@grup", LoginWindow.grupActiu);
-
-                MySqlDataReader reader = cmd.ExecuteReader();
-
-                cmbParticipants.Items.Clear();
-                cmbSprintMaster.Items.Clear();
-
-                while (reader.Read())
-                {
-                    string nom = reader["Nom"].ToString();
-
-                    // Omplir tots dos combos amb els paricipants del grup actiu
-                    cmbParticipants.Items.Add(nom);
-                    cmbSprintMaster.Items.Add(nom);
-
-                    // I afegir a la llista interna (per TascaWindow)
-                    Participants.Add(nom);
-                }
+                cmbParticipants.Items.Add(nom);
+                cmbSprintMaster.Items.Add(nom);
             }
         }
 
-        // CARREGAR PROJECTE ACTIU AL INICIAR
         private void CarregarProjecteActiu()
         {
-            using (MySqlConnection conn = new MySqlConnection(Database.connectionString))
-            {
-                conn.Open();
-
-                string sql = @"SELECT Titol 
-                       FROM Projectes 
-                       WHERE IdGrup = @grup
-                       ORDER BY IdProjecte DESC
-                       LIMIT 1";
-
-                MySqlCommand cmd = new MySqlCommand(sql, conn);
-                cmd.Parameters.AddWithValue("@grup", LoginWindow.grupActiu);
-
-                object result = cmd.ExecuteScalar();
-
-                if (result != null)
-                    txtSprintName.Text = result.ToString();
-            }
+            string titol = _kanbanService.ObtenirTitolProjecteActiu(LoginWindow.grupActiu);
+            if (titol != null)
+                txtSprintName.Text = titol;
         }
 
-        // PARTICIPANTS EN EL HEADER
-        private void CarregarParticipants()
+        private void CarregarTasquesProjecteActiu()
         {
-            panelParticipants.Children.Clear();
+            NetejarColumnes();
 
-            foreach (var item in cmbParticipants.Items)
-            {
-                string nom = item.ToString();
+            int? idProjecte = _kanbanService.ObtenirProjecteActiuId(LoginWindow.grupActiu);
+            if (idProjecte.HasValue)
+                CarregarTasquesProjecteSeleccionat(idProjecte.Value);
 
-                panelParticipants.Children.Add(
-                    CrearEtiquetaParticipant(nom, "#2196F3", 0)
-                );
-            }
+            RefrescarColumnes();
         }
 
-        // ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-        // ─────────────────────────────────────────────
-        // CLASSE TASQUES
-        // ─────────────────────────────────────────────
-        public class Tasques
+        private void CarregarTasquesProjecteSeleccionat(int idProjecte)
         {
-            public int IdTasca { get; set; }
-            public int IdProjecte { get; set; }
-            public byte IdColumna { get; set; }
+            var tasques = _kanbanService.CarregarTasquesProjecte(idProjecte);
 
-            public string Titol { get; set; }
-            public string Descripcio { get; set; }
-            public string Estat { get; set; }
-            public string Responsable { get; set; }
-            public DateTime DataVenciment { get; set; }
-            public int Prioritat { get; set; }
-            public DateTime DataCreacio { get; set; }
-            public string Notes { get; set; }
-
-            public string PrioritatText
+            foreach (var tasca in tasques)
             {
-                get
-                {
-                    switch (Prioritat)
-                    {
-                        case 1:
-                            return "Alta";
-                        case 2:
-                            return "Mitja";
-                        case 3:
-                            return "Baixa";
-                        default:
-                            return "Sense";
-                    }
-                }
+                AfegirTascaAColumna(tasca);
             }
 
-            public override string ToString() => Titol;
+            OrdenarTotesLesColumnes();
         }
 
+        #endregion
 
-        // ─────────────────────────────────────────────
-        // BOTÓ AFEGIR TASCA (BACKLOG)
-        // ─────────────────────────────────────────────
+        #region Gestió de tasques
+
         private void btnAddBacklog_Click(object sender, RoutedEventArgs e)
         {
             var participantsProjecte = ObtenirParticipantsProjecte();
@@ -170,123 +114,171 @@ namespace Kanban
                 return;
             }
 
-            TascaWindow w = new TascaWindow(participantsProjecte);
-
-            if (w.ShowDialog() == true)
+            var w = new TascaWindow(participantsProjecte, null, 1);
+            if (w.ShowDialog() == true && w.TascaResultant != null)
             {
-                Tasques nova = new Tasques
-                {
-                    Titol = w.Descripcio,
-                    Descripcio = w.Descripcio,
-                    Estat = "Backlog",
-                    Responsable = w.Responsable,
-                    Prioritat = w.Prioritat,
-                    DataVenciment = w.DataVenciment ?? DateTime.MinValue,
-                    Notes = w.Notes,
-                    DataCreacio = DateTime.Now,
-                    IdColumna = 1
-                };
-
-                try
-                {
-                    nova.IdTasca = InserirTascaBD(nova);
-                    Backlog.Add(nova);
-                    OrdenarLlista(Backlog);
-                    listBacklog.Items.Refresh();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error al guardar la tasca: " + ex.Message);
-                }
+                Backlog.Add(w.TascaResultant);
+                _kanbanService.OrdenarLlista(Backlog);
+                listBacklog.Items.Refresh();
             }
         }
 
-
-        // ─────────────────────────────────────────────
-        // BOTÓ AFEGIR TASCA (TODO)
-        // ─────────────────────────────────────────────
-        private void btnAddTodo_Click(object sender, RoutedEventArgs e)
+        private void ListBox_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
+            var listBox = sender as ListBox;
+            var tasca = listBox?.SelectedItem as Tasques;
+            if (tasca == null) return;
+
             var participantsProjecte = ObtenirParticipantsProjecte();
-            if (participantsProjecte.Count == 0)
+            var dialog = new TascaWindow(participantsProjecte, tasca, tasca.IdColumna);
+
+            if (dialog.ShowDialog() == true)
             {
-                MessageBox.Show("Has d'afegir participants al projecte abans de crear tasques.");
-                return;
-            }
-
-            TascaWindow w = new TascaWindow(participantsProjecte);
-
-            if (w.ShowDialog() == true)
-            {
-                Tasques nova = new Tasques
-                {
-                    Titol = w.Descripcio,
-                    Descripcio = w.Descripcio,
-                    Estat = "ToDo",
-                    Responsable = w.Responsable,
-                    Prioritat = w.Prioritat,
-                    DataVenciment = w.DataVenciment ?? DateTime.MinValue,
-                    Notes = w.Notes,
-                    DataCreacio = DateTime.Now,
-                    IdColumna = 2
-                };
-
-                try
-                {
-                    nova.IdTasca = InserirTascaBD(nova);
-                    Todo.Add(nova);
-                    OrdenarLlista(Todo);
-                    listTodo.Items.Refresh();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error al guardar la tasca: " + ex.Message);
-                }
+                _kanbanService.OrdenarLlista(GetLlistaPerColumna(tasca.IdColumna));
+                RefrescarColumnes();
             }
         }
 
-        // ─────────────────────────────────────────────
-        // BOTÓ CREAR PROJECTE
-        // ─────────────────────────────────────────────
+        #endregion
+
+        #region Gestió de projectes
+
         private void btnCrearProjecte_Click(object sender, RoutedEventArgs e)
         {
-            CrearProjecteWindow projecteWindow = new CrearProjecteWindow();
-
+            var projecteWindow = new CrearProjecteWindow();
             if (projecteWindow.ShowDialog() == true)
             {
                 txtSprintName.Text = projecteWindow.TitolProjecteCreat;
-
-                // Netejar estat visual de l'sprint anterior
                 panelParticipants.Children.Clear();
-                Backlog.Clear();
-                Todo.Clear();
-                Doing.Clear();
-                Done.Clear();
-                listBacklog.Items.Refresh();
-                listTodo.Items.Refresh();
-                listDoing.Items.Refresh();
-                listDone.Items.Refresh();
-
-                // Carregar tasques del nou projecte (si n'hi ha)
+                NetejarColumnes();
+                RefrescarColumnes();
                 CarregarTasquesProjecteActiu();
             }
         }
 
-        // ─────────────────────────────────────────────
-        // BOTÓ INFO
-        // ─────────────────────────────────────────────
-        private void btnInfo_Click(object sender, RoutedEventArgs e)
+        private void btnObrirProjecte_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show(
-                "Aplicació Kanban creada per Cistian i Amine.\nVersió 1.0\nGestiona tasques i projectes desde la base de dades.\r\n1. " +
-                "Afegeix participants al projecte des del desplegable.\r\n2. Només els participants afegits poden ser assignats " +
-                "com a responsables de tasques.\r\n3. Crea tasques amb el botó \"+\" de cada columna.\r\n4. Assigna prioritat " +
-                "(Alta, Mitja, Baixa) i responsable a cada tasca.\r\n5. Pots arrossegar les tasques entre columnes.\r\n6. " +
-                "Fes doble clic sobre una tasca per editar-la.",
-                "Informació",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information
-            );
+            var wnd = new ObrirProjecte();
+            if (wnd.ShowDialog() == true)
+            {
+                txtSprintName.Text = wnd.TitolProjecteSeleccionat;
+                ActualitzarSprintMasterUI(wnd.IdResponsableSeleccionat);
+                NetejarColumnes();
+                RefrescarColumnes();
+                CarregarTasquesProjecteSeleccionat(wnd.IdProjecteSeleccionat);
+                RefrescarColumnes();
+            }
+        }
+
+        private void ActualitzarSprintMasterUI(int? idResponsable)
+        {
+            cmbSprintMaster.SelectedItem = null;
+            if (!idResponsable.HasValue) return;
+
+            string nom = _kanbanService.ObtenirNomResponsable(idResponsable);
+            if (nom != null && cmbSprintMaster.Items.Contains(nom))
+                cmbSprintMaster.SelectedItem = nom;
+        }
+
+        #endregion
+
+        #region Gestió de participants
+
+        private void BtnAddParticipant_Click(object sender, RoutedEventArgs e)
+        {
+            var apw = new AfegirParticipantsWindow();
+            if (apw.ShowDialog() == true)
+                CarregarParticipantsBD();
+        }
+
+        private void cmbParticipants_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cmbParticipants.SelectedItem == null) return;
+
+            string nom = cmbParticipants.SelectedItem.ToString();
+            if (ParticipantJaAfegit(nom)) return;
+
+            _kanbanService.AfegirParticipantAProjecte(nom, LoginWindow.grupActiu);
+            panelParticipants.Children.Add(CrearEtiquetaParticipant(nom, "#2196F3", 0));
+        }
+
+        private bool ParticipantJaAfegit(string nom)
+        {
+            foreach (Border b in panelParticipants.Children)
+            {
+                var tb = b.Child as TextBlock;
+                if (tb != null && tb.Text.Contains(nom))
+                    return true;
+            }
+            return false;
+        }
+
+        private void cmbSprintMaster_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cmbSprintMaster.SelectedItem == null) return;
+
+            string nomUsuari = cmbSprintMaster.SelectedItem.ToString();
+            _kanbanService.ActualitzarSprintMaster(nomUsuari, LoginWindow.grupActiu);
+        }
+
+        private void BtnDesvincularParticipant_Click(object sender, RoutedEventArgs e)
+        {
+            var participantsProjecte = ObtenirParticipantsProjecte();
+            if (participantsProjecte.Count == 0)
+            {
+                MessageBox.Show("No hi ha participants al projecte per desvincular.");
+                return;
+            }
+
+            var wnd = new DesvincularParticipantWindow(participantsProjecte);
+            if (wnd.ShowDialog() == true && !string.IsNullOrEmpty(wnd.ParticipantSeleccionat))
+            {
+                _kanbanService.DesvincularParticipant(wnd.ParticipantSeleccionat, LoginWindow.grupActiu);
+                TreureParticipantDelPanell(wnd.ParticipantSeleccionat);
+                MessageBox.Show($"S'ha desvinculat '{wnd.ParticipantSeleccionat}' del projecte.");
+            }
+        }
+
+        private void BtnEliminarUsuari_Click(object sender, RoutedEventArgs e)
+        {
+            var wnd = new EliminarUsuariWindow();
+            if (wnd.ShowDialog() != true || string.IsNullOrEmpty(wnd.UsuariSeleccionat)) return;
+
+            string nom = wnd.UsuariSeleccionat;
+            var result = MessageBox.Show(
+                $"Estàs segur que vols eliminar l'usuari '{nom}' de la base de dades?\nAquesta acció és irreversible.",
+                "Confirmar eliminació", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    _kanbanService.EliminarUsuari(nom, LoginWindow.grupActiu);
+                    CarregarParticipantsBD();
+                    TreureParticipantDelPanell(nom);
+                    MessageBox.Show($"S'ha eliminat l'usuari '{nom}' de la base de dades.");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error al eliminar l'usuari: " + ex.Message);
+                }
+            }
+        }
+
+        private void TreureParticipantDelPanell(string nom)
+        {
+            Border toRemove = null;
+            foreach (Border b in panelParticipants.Children)
+            {
+                var tb = b.Child as TextBlock;
+                if (tb != null && tb.Text.StartsWith(nom))
+                {
+                    toRemove = b;
+                    break;
+                }
+            }
+            if (toRemove != null)
+                panelParticipants.Children.Remove(toRemove);
         }
 
         private Border CrearEtiquetaParticipant(string nom, string colorHex, int numTasques)
@@ -306,415 +298,30 @@ namespace Kanban
             };
         }
 
-        // ─────────────────────────────────────────────
-        // BOTÓ AFEGIR PARTICIPANT
-        // ─────────────────────────────────────────────
-        private void BtnAddParticipant_Click(object sender, RoutedEventArgs e)
-        {
-            AfegirParticipantsWindow apw = new AfegirParticipantsWindow();
+        #endregion
 
-            if (apw.ShowDialog() == true)
-            {
-                // Només actualitzem els ComboBox; el panell de participants
-                // es va omplint a mesura que se seleccionen usuaris al combo.
-                CarregarParticipantsBD();
-            }
-        }
+        #region Drag & Drop
 
-        // ─────────────────────────────────────────────
-        // COMBO SPRINT MASTER
-        // ─────────────────────────────────────────────
-        private void cmbSprintMaster_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (cmbSprintMaster.SelectedItem == null)
-                return;
-
-            string nomUsuari = cmbSprintMaster.SelectedItem.ToString();
-
-            using (MySqlConnection conn = new MySqlConnection(Database.connectionString))
-            {
-                conn.Open();
-
-                // Obtenir IdUsuari
-                string query = @"SELECT IdUsuari 
-                         FROM Usuaris 
-                         WHERE Nom = @nom AND IdGrup = @grup";
-
-                MySqlCommand cmdUsuari = new MySqlCommand(query, conn);
-                cmdUsuari.Parameters.AddWithValue("@nom", nomUsuari);
-                cmdUsuari.Parameters.AddWithValue("@grup", LoginWindow.grupActiu);
-
-                object result = cmdUsuari.ExecuteScalar();
-                if (result == null)
-                    return;
-
-                int idUsuari = Convert.ToInt32(result);
-
-                // Actualitzar projecte
-                string sqlUpdate = @"UPDATE Projectes 
-                             SET IdResponsable = @idUsuari 
-                             WHERE IdGrup = @grup 
-                             ORDER BY IdProjecte DESC 
-                             LIMIT 1";
-
-                MySqlCommand cmdUpdate = new MySqlCommand(sqlUpdate, conn);
-                cmdUpdate.Parameters.AddWithValue("@idUsuari", idUsuari);
-                cmdUpdate.Parameters.AddWithValue("@grup", LoginWindow.grupActiu);
-
-                cmdUpdate.ExecuteNonQuery();
-            }
-        }
-
-        // ─────────────────────────────────────────────
-        // BOTÓ OBRIR PROJECTE
-        // ─────────────────────────────────────────────
-        private void btnObrirProjecte_Click(object sender, RoutedEventArgs e)
-        {
-            ObrirProjecte wnd = new ObrirProjecte();
-            if (wnd.ShowDialog() == true)
-            {
-                // Actualitzar títol sprint
-                txtSprintName.Text = wnd.TitolProjecteSeleccionat;
-
-                using (MySqlConnection conn = new MySqlConnection(Database.connectionString))
-                {
-                    conn.Open();
-
-                    // Actualitzar LoginWindow.grupActiu no cal, els projectes ja es filtren per grup.
-                    // Posar el responsable al combo si el coneixem
-                    cmbSprintMaster.SelectedItem = null;
-
-                    if (wnd.IdResponsableSeleccionat.HasValue)
-                    {
-                        const string sqlUsuari = @"SELECT Nom FROM Usuaris WHERE IdUsuari = @id";
-                        using (MySqlCommand cmd = new MySqlCommand(sqlUsuari, conn))
-                        {
-                            cmd.Parameters.AddWithValue("@id", wnd.IdResponsableSeleccionat.Value);
-                            object nom = cmd.ExecuteScalar();
-                            if (nom != null)
-                            {
-                                string nomStr = nom.ToString();
-                                if (cmbSprintMaster.Items.Contains(nomStr))
-                                {
-                                    cmbSprintMaster.SelectedItem = nomStr;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Netejar i carregar tasques del projecte seleccionat
-                Backlog.Clear();
-                Todo.Clear();
-                Doing.Clear();
-                Done.Clear();
-                listBacklog.Items.Refresh();
-                listTodo.Items.Refresh();
-                listDoing.Items.Refresh();
-                listDone.Items.Refresh();
-
-                CarregarTasquesProjecteSeleccionat(wnd.IdProjecteSeleccionat);
-            }
-        }
-
-        private void CarregarTasquesProjecteSeleccionat(int idProjecte)
-        {
-            using (MySqlConnection conn = new MySqlConnection(Database.connectionString))
-            {
-                conn.Open();
-
-                const string sql = @"SELECT t.IdTasca,
-                                               t.IdProjecte,
-                                               t.IdColumna,
-                                               t.IdUsuariResponsable,
-                                               t.Descripcio,
-                                               t.Prioritat,
-                                               t.DataCreacio,
-                                               t.DataVenciment,
-                                               u.Nom AS NomResponsable
-                                        FROM Tasca t
-                                        LEFT JOIN Usuaris u ON u.IdUsuari = t.IdUsuariResponsable
-                                        WHERE t.IdProjecte = @idProjecte";
-
-                using (MySqlCommand cmd = new MySqlCommand(sql, conn))
-                {
-                    cmd.Parameters.AddWithValue("@idProjecte", idProjecte);
-
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            Tasques tasca = new Tasques
-                            {
-                                IdTasca = Convert.ToInt32(reader["IdTasca"]),
-                                IdProjecte = Convert.ToInt32(reader["IdProjecte"]),
-                                IdColumna = Convert.ToByte(reader["IdColumna"]),
-                                Descripcio = reader["Descripcio"].ToString(),
-                                Titol = reader["Descripcio"].ToString(),
-                                Responsable = reader["NomResponsable"] == DBNull.Value
-                                    ? null
-                                    : reader["NomResponsable"].ToString(),
-                                Prioritat = reader["Prioritat"] == DBNull.Value
-                                    ? 0
-                                    : Convert.ToInt32(reader["Prioritat"]),
-                                DataCreacio = reader["DataCreacio"] == DBNull.Value
-                                    ? DateTime.MinValue
-                                    : Convert.ToDateTime(reader["DataCreacio"]),
-                                DataVenciment = reader["DataVenciment"] == DBNull.Value
-                                    ? DateTime.MinValue
-                                    : Convert.ToDateTime(reader["DataVenciment"])
-                            };
-
-                            switch (tasca.IdColumna)
-                            {
-                                case 1:
-                                    tasca.Estat = "Backlog";
-                                    Backlog.Add(tasca);
-                                    break;
-                                case 2:
-                                    tasca.Estat = "ToDo";
-                                    Todo.Add(tasca);
-                                    break;
-                                case 3:
-                                    tasca.Estat = "Doing";
-                                    Doing.Add(tasca);
-                                    break;
-                                case 4:
-                                    tasca.Estat = "Done";
-                                    Done.Add(tasca);
-                                    break;
-                            }
-                        }
-                    }
-                }
-
-                OrdenarLlista(Backlog);
-                OrdenarLlista(Todo);
-                OrdenarLlista(Doing);
-                OrdenarLlista(Done);
-
-                listBacklog.Items.Refresh();
-                listTodo.Items.Refresh();
-                listDoing.Items.Refresh();
-                listDone.Items.Refresh();
-            }
-        }
-
-        private int InserirTascaBD(Tasques tasca)
-        {
-            using (MySqlConnection conn = new MySqlConnection(Database.connectionString))
-            {
-                conn.Open();
-
-                int? idProjecte = ObtenirProjecteActiuId(conn);
-                if (!idProjecte.HasValue)
-                {
-                    throw new InvalidOperationException("No hi ha cap projecte actiu per al grup actual.");
-                }
-
-                tasca.IdProjecte = idProjecte.Value;
-                int? idUsuariResponsable = null;
-                if (!string.IsNullOrEmpty(tasca.Responsable))
-                {
-                    idUsuariResponsable = ObtenirIdUsuariPerNom(conn, tasca.Responsable);
-                }
-
-                const string sql = @"INSERT INTO Tasca
-                                        (IdProjecte, IdColumna, IdUsuariResponsable, Descripcio, Prioritat, DataCreacio, DataVenciment)
-                                    VALUES
-                                        (@idProjecte, @idColumna, @idUsuariResponsable, @descripcio, @prioritat, @dataCreacio, @dataVenciment);
-                                    SELECT LAST_INSERT_ID();";
-
-                using (MySqlCommand cmd = new MySqlCommand(sql, conn))
-                {
-                    cmd.Parameters.AddWithValue("@idProjecte", tasca.IdProjecte);
-                    cmd.Parameters.AddWithValue("@idColumna", tasca.IdColumna);
-                    cmd.Parameters.AddWithValue("@idUsuariResponsable",
-                        (object)idUsuariResponsable ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("@descripcio", tasca.Descripcio);
-                    cmd.Parameters.AddWithValue("@prioritat", tasca.Prioritat);
-                    cmd.Parameters.AddWithValue("@dataCreacio", tasca.DataCreacio);
-                    cmd.Parameters.AddWithValue("@dataVenciment",
-                        tasca.DataVenciment == DateTime.MinValue
-                            ? (object)DBNull.Value
-                            : tasca.DataVenciment);
-
-                    object result = cmd.ExecuteScalar();
-                    return Convert.ToInt32(result);
-                }
-            }
-        }
-
-        private void ActualitzarColumnaTascaBD(Tasques tasca)
-        {
-            if (tasca.IdTasca <= 0)
-            {
-                return;
-            }
-
-            using (MySqlConnection conn = new MySqlConnection(Database.connectionString))
-            {
-                conn.Open();
-
-                const string sql = @"UPDATE Tasca
-                             SET IdColumna = @idColumna
-                             WHERE IdTasca = @idTasca";
-
-                using (MySqlCommand cmd = new MySqlCommand(sql, conn))
-                {
-                    cmd.Parameters.AddWithValue("@idColumna", tasca.IdColumna);
-                    cmd.Parameters.AddWithValue("@idTasca", tasca.IdTasca);
-                    cmd.ExecuteNonQuery();
-                }
-            }
-        }
-
-        private int? ObtenirProjecteActiuId(MySqlConnection conn)
-        {
-            const string sqlProjecte = @"SELECT IdProjecte 
-                                   FROM Projectes 
-                                   WHERE IdGrup = @grup 
-                                   ORDER BY IdProjecte DESC 
-                                   LIMIT 1";
-
-            using (MySqlCommand cmdProjecte = new MySqlCommand(sqlProjecte, conn))
-            {
-                cmdProjecte.Parameters.AddWithValue("@grup", LoginWindow.grupActiu);
-                object result = cmdProjecte.ExecuteScalar();
-                if (result == null || result == DBNull.Value)
-                {
-                    return null;
-                }
-
-                return Convert.ToInt32(result);
-            }
-        }
-
-        private int? ObtenirIdUsuariPerNom(MySqlConnection conn, string nomUsuari)
-        {
-            const string sql = @"SELECT IdUsuari 
-                         FROM Usuaris 
-                         WHERE Nom = @nom AND IdGrup = @grup";
-
-            using (MySqlCommand cmd = new MySqlCommand(sql, conn))
-            {
-                cmd.Parameters.AddWithValue("@nom", nomUsuari);
-                cmd.Parameters.AddWithValue("@grup", LoginWindow.grupActiu);
-
-                object result = cmd.ExecuteScalar();
-                if (result == null || result == DBNull.Value)
-                {
-                    return null;
-                }
-
-                return Convert.ToInt32(result);
-            }
-        }
-
-        // ─────────────────────────────────────────────
-        // COMBO PARTICIPANTS
-        // ─────────────────────────────────────────────
-        private void cmbParticipants_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (cmbParticipants.SelectedItem == null)
-                return;
-
-            string nom = cmbParticipants.SelectedItem.ToString();
-
-            // Evitar duplicats visuals
-            foreach (Border b in panelParticipants.Children)
-            {
-                if (((TextBlock)b.Child).Text.Contains(nom))
-                    return;
-            }
-
-            using (MySqlConnection conn = new MySqlConnection(Database.connectionString))
-            {
-                conn.Open();
-
-                // Obtenir IdUsuari
-                const string sqlUsuari = @"SELECT IdUsuari 
-                             FROM Usuaris 
-                             WHERE Nom = @nom AND IdGrup = @grup";
-
-                MySqlCommand cmdUsuari = new MySqlCommand(sqlUsuari, conn);
-                cmdUsuari.Parameters.AddWithValue("@nom", nom);
-                cmdUsuari.Parameters.AddWithValue("@grup", LoginWindow.grupActiu);
-
-                object resultUsuari = cmdUsuari.ExecuteScalar();
-                if (resultUsuari == null)
-                    return;
-
-                int idUsuari = Convert.ToInt32(resultUsuari);
-
-                // Obtenir IdProjecte actiu (últim del grup)
-                const string sqlProjecte = @"SELECT IdProjecte 
-                               FROM Projectes 
-                               WHERE IdGrup = @grup 
-                               ORDER BY IdProjecte DESC 
-                               LIMIT 1";
-
-                MySqlCommand cmdProjecte = new MySqlCommand(sqlProjecte, conn);
-                cmdProjecte.Parameters.AddWithValue("@grup", LoginWindow.grupActiu);
-
-                object resultProjecte = cmdProjecte.ExecuteScalar();
-                if (resultProjecte == null)
-                    return;
-
-                int idProjecte = Convert.ToInt32(resultProjecte);
-
-                // Insertar relació Projecte i Usuari (si no existeix)
-                const string sqlInsert = @"INSERT IGNORE INTO Usuaris_projectes (IdProjecte, IdUsuari)
-                             VALUES (@idProjecte, @idUsuari)";
-
-                MySqlCommand cmdInsert = new MySqlCommand(sqlInsert, conn);
-                cmdInsert.Parameters.AddWithValue("@idProjecte", idProjecte);
-                cmdInsert.Parameters.AddWithValue("@idUsuari", idUsuari);
-
-                cmdInsert.ExecuteNonQuery();
-            }
-
-            // Afegir visualment al MainWindow
-            panelParticipants.Children.Add(
-                CrearEtiquetaParticipant(nom, "#2196F3", 0)
-            );
-        }
-
-        // ─────────────────────────────────────────────
-        // DRAG & DROP ENTRE COLUMNES
-        // ─────────────────────────────────────────────
         private void ListBox_PreviewMouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
-            {
-                var listBox = sender as ListBox;
-                if (listBox == null) return;
+            if (e.LeftButton != System.Windows.Input.MouseButtonState.Pressed) return;
 
-                var tasca = listBox.SelectedItem as Tasques;
-                if (tasca == null) return;
+            var listBox = sender as ListBox;
+            var tasca = listBox?.SelectedItem as Tasques;
+            if (tasca == null) return;
 
-                _draggedTask = tasca;
-                _sourceListBox = listBox;
+            _draggedTask = tasca;
+            _sourceListBox = listBox;
 
-                DragDrop.DoDragDrop(listBox,
-                    new DataObject("Tasca", tasca),
-                    DragDropEffects.Move);
+            DragDrop.DoDragDrop(listBox, new DataObject("Tasca", tasca), DragDropEffects.Move);
 
-                _draggedTask = null;
-                _sourceListBox = null;
-            }
+            _draggedTask = null;
+            _sourceListBox = null;
         }
 
         private void ListBox_DragOver(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent("Tasca"))
-            {
-                e.Effects = DragDropEffects.Move;
-            }
-            else
-            {
-                e.Effects = DragDropEffects.None;
-            }
+            e.Effects = e.Data.GetDataPresent("Tasca") ? DragDropEffects.Move : DragDropEffects.None;
             e.Handled = true;
         }
 
@@ -728,196 +335,71 @@ namespace Kanban
             if (tasca == null || targetListBox == null) return;
             if (_sourceListBox == null || _sourceListBox == targetListBox) return;
 
-            var sourceList = GetLlistaPerListBox(_sourceListBox);
-            var destList = GetLlistaPerListBox(targetListBox);
+            TreureTascaDeLlistaOrigen(tasca);
+            AfegirTascaALlistaDestí(tasca, targetListBox);
 
-            // 1. Treure de la llista origen
-            if (_sourceListBox == listBacklog) Backlog.Remove(tasca);
-            else if (_sourceListBox == listTodo) Todo.Remove(tasca);
-            else if (_sourceListBox == listDoing) Doing.Remove(tasca);
-            else if (_sourceListBox == listDone) Done.Remove(tasca);
+            try { _kanbanService.ActualitzarColumnaTasca(tasca); }
+            catch (Exception ex) { MessageBox.Show("Error al actualitzar la columna: " + ex.Message); }
 
-            // 2. Afegir a la llista destí i actualitzar Estat / IdColumna
-            if (targetListBox == listBacklog)
-            {
-                tasca.Estat = "Backlog";
-                tasca.IdColumna = 1;
-                Backlog.Add(tasca);
-            }
-            else if (targetListBox == listTodo)
-            {
-                tasca.Estat = "ToDo";
-                tasca.IdColumna = 2;
-                Todo.Add(tasca);
-            }
-            else if (targetListBox == listDoing)
-            {
-                tasca.Estat = "Doing";
-                tasca.IdColumna = 3;
-                Doing.Add(tasca);
-            }
-            else if (targetListBox == listDone)
-            {
-                tasca.Estat = "Done";
-                tasca.IdColumna = 4;
-                Done.Add(tasca);
-            }
+            OrdenarTotesLesColumnes();
+            RefrescarColumnes();
+        }
 
-            try
-            {
-                ActualitzarColumnaTascaBD(tasca);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error al actualitzar la columna: " + ex.Message);
-            }
+        private void TreureTascaDeLlistaOrigen(Tasques tasca)
+        {
+            GetLlistaPerListBox(_sourceListBox)?.Remove(tasca);
+        }
 
-            OrdenarLlista(destList);
-            OrdenarLlista(sourceList);
+        private void AfegirTascaALlistaDestí(Tasques tasca, ListBox targetListBox)
+        {
+            byte novaColumna = GetColumnaPerListBox(targetListBox);
+            tasca.IdColumna = novaColumna;
+            tasca.Estat = KanbanService.GetEstatPerColumna(novaColumna);
+            GetLlistaPerListBox(targetListBox)?.Add(tasca);
+        }
 
-            // 3. Refrescar totes les columnes
+        #endregion
+
+        #region Utilitats columnes
+
+        private void NetejarColumnes()
+        {
+            Backlog.Clear();
+            Todo.Clear();
+            Doing.Clear();
+            Done.Clear();
+        }
+
+        private void RefrescarColumnes()
+        {
             listBacklog.Items.Refresh();
             listTodo.Items.Refresh();
             listDoing.Items.Refresh();
             listDone.Items.Refresh();
         }
 
-        private void CarregarTasquesProjecteActiu()
+        private void OrdenarTotesLesColumnes()
         {
-            int? idProjecte;
-            using (MySqlConnection conn = new MySqlConnection(Database.connectionString))
-            {
-                conn.Open();
-                idProjecte = ObtenirProjecteActiuId(conn);
-            }
-
-            Backlog.Clear();
-            Todo.Clear();
-            Doing.Clear();
-            Done.Clear();
-
-            if (!idProjecte.HasValue)
-            {
-                listBacklog.Items.Refresh();
-                listTodo.Items.Refresh();
-                listDoing.Items.Refresh();
-                listDone.Items.Refresh();
-                return;
-            }
-
-            CarregarTasquesProjecteSeleccionat(idProjecte.Value);
+            _kanbanService.OrdenarLlista(Backlog);
+            _kanbanService.OrdenarLlista(Todo);
+            _kanbanService.OrdenarLlista(Doing);
+            _kanbanService.OrdenarLlista(Done);
         }
 
-        private void ListBox_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void AfegirTascaAColumna(Tasques tasca)
         {
-            var listBox = sender as ListBox;
-            if (listBox == null) return;
-
-            var tasca = listBox.SelectedItem as Tasques;
-            if (tasca == null) return;
-
-            var participantsProjecte = ObtenirParticipantsProjecte();
-            TascaWindow dialog = new TascaWindow(participantsProjecte, tasca);
-            if (dialog.ShowDialog() == true)
-            {
-                tasca.Descripcio = dialog.Descripcio;
-                tasca.Titol = dialog.Descripcio;
-                tasca.Prioritat = dialog.Prioritat;
-                tasca.Responsable = dialog.Responsable;
-                tasca.DataVenciment = dialog.DataVenciment ?? DateTime.MinValue;
-                tasca.Notes = dialog.Notes;
-
-                try
-                {
-                    ActualitzarDetallsTascaBD(tasca);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error al actualitzar la tasca: " + ex.Message);
-                }
-
-                OrdenarLlista(GetLlistaPerColumna(tasca.IdColumna));
-
-                listBacklog.Items.Refresh();
-                listTodo.Items.Refresh();
-                listDoing.Items.Refresh();
-                listDone.Items.Refresh();
-            }
-        }
-
-        private void ActualitzarDetallsTascaBD(Tasques tasca)
-        {
-            if (tasca.IdTasca <= 0)
-                return;
-
-            using (MySqlConnection conn = new MySqlConnection(Database.connectionString))
-            {
-                conn.Open();
-
-                int? idUsuariResponsable = null;
-                if (!string.IsNullOrEmpty(tasca.Responsable))
-                {
-                    idUsuariResponsable = ObtenirIdUsuariPerNom(conn, tasca.Responsable);
-                }
-
-                const string sql = @"UPDATE Tasca
-                                    SET Descripcio = @descripcio,
-                                        Prioritat = @prioritat,
-                                        DataVenciment = @dataVenciment,
-                                        IdUsuariResponsable = @responsable
-                                    WHERE IdTasca = @id";
-
-                using (MySqlCommand cmd = new MySqlCommand(sql, conn))
-                {
-                    cmd.Parameters.AddWithValue("@descripcio", tasca.Descripcio);
-                    cmd.Parameters.AddWithValue("@prioritat", tasca.Prioritat);
-                    cmd.Parameters.AddWithValue("@dataVenciment",
-                        tasca.DataVenciment == DateTime.MinValue ? (object)DBNull.Value : tasca.DataVenciment);
-                    cmd.Parameters.AddWithValue("@responsable", (object)idUsuariResponsable ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("@id", tasca.IdTasca);
-
-                    cmd.ExecuteNonQuery();
-                }
-            }
-        }
-
-        // ─────────────────────────────────────────────
-        // Obtenir la llista de participants afegits al projecte (els del panell)
-        // ─────────────────────────────────────────────
-        private List<string> ObtenirParticipantsProjecte()
-        {
-            var participants = new List<string>();
-            foreach (Border b in panelParticipants.Children)
-            {
-                var textBlock = b.Child as TextBlock;
-                if (textBlock != null)
-                {
-                    // El text té format "Nom  0", agafem només el nom
-                    string text = textBlock.Text;
-                    int spaceIndex = text.LastIndexOf("  ");
-                    if (spaceIndex > 0)
-                        participants.Add(text.Substring(0, spaceIndex));
-                    else
-                        participants.Add(text.Trim());
-                }
-            }
-            return participants;
+            GetLlistaPerColumna(tasca.IdColumna)?.Add(tasca);
         }
 
         private List<Tasques> GetLlistaPerColumna(byte idColumna)
         {
             switch (idColumna)
             {
-                case 1:
-                    return Backlog;
-                case 2:
-                    return Todo;
-                case 3:
-                    return Doing;
-                case 4:
-                    return Done;
-                default:
-                    return null;
+                case 1: return Backlog;
+                case 2: return Todo;
+                case 3: return Doing;
+                case 4: return Done;
+                default: return null;
             }
         }
 
@@ -930,32 +412,48 @@ namespace Kanban
             return null;
         }
 
-        private void OrdenarLlista(List<Tasques> llista)
+        private byte GetColumnaPerListBox(ListBox listBox)
         {
-            if (llista == null)
-                return;
-
-            llista.Sort(CompararTasques);
+            if (listBox == listBacklog) return 1;
+            if (listBox == listTodo) return 2;
+            if (listBox == listDoing) return 3;
+            if (listBox == listDone) return 4;
+            return 0;
         }
 
-        private static int CompararTasques(Tasques x, Tasques y)
+        private List<string> ObtenirParticipantsProjecte()
         {
-            if (x == null || y == null)
-                return 0;
-
-            int prioritat = x.Prioritat.CompareTo(y.Prioritat);
-            if (prioritat != 0)
-                return prioritat;
-
-            string respX = string.IsNullOrWhiteSpace(x.Responsable) ? "~~~~" : x.Responsable;
-            string respY = string.IsNullOrWhiteSpace(y.Responsable) ? "~~~~" : y.Responsable;
-            int responsable = string.Compare(respX, respY, StringComparison.CurrentCultureIgnoreCase);
-            if (responsable != 0)
-                return responsable;
-
-            string descX = x.Descripcio ?? string.Empty;
-            string descY = y.Descripcio ?? string.Empty;
-            return string.Compare(descX, descY, StringComparison.CurrentCultureIgnoreCase);
+            var participants = new List<string>();
+            foreach (Border b in panelParticipants.Children)
+            {
+                var tb = b.Child as TextBlock;
+                if (tb != null)
+                {
+                    string text = tb.Text;
+                    int spaceIndex = text.LastIndexOf("  ");
+                    participants.Add(spaceIndex > 0 ? text.Substring(0, spaceIndex) : text.Trim());
+                }
+            }
+            return participants;
         }
+
+        #endregion
+
+        #region Altres botons
+
+        private void btnInfo_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show(
+                "Aplicació Kanban creada per Cristian i Amine.\nVersió 1.0\n\n" +
+                "1. Afegeix participants al projecte des del desplegable.\n" +
+                "2. Només els participants afegits poden ser assignats com a responsables.\n" +
+                "3. Crea tasques amb el botó 'Afegir Tasca'.\n" +
+                "4. Assigna prioritat (Alta, Mitja, Baixa) i responsable.\n" +
+                "5. Arrossega les tasques entre columnes.\n" +
+                "6. Fes doble clic sobre una tasca per editar-la.",
+                "Informació", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        #endregion
     }
 }

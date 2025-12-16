@@ -39,7 +39,7 @@
                 </Setter.Value>
             </Setter>
 
-            <!-- TEMPLATE = defineix com es "dibuixa" el botó visualment. Aquí canviem el botó clàssic per un Border amb cantonades arrodonides. -->
+            <!-- TEMPLATE = defineix com es "dibuixa" el botó visualment. Aquí cambiem el botó clàssic per un Border amb cantonades arrodonides. -->
             <Setter Property="Template">
                 <Setter.Value>
                     <!-- Plantilla personalitzada per al control Button -->
@@ -87,5 +87,6 @@
     </Application.Resources>
     
 </Application>
+
 
 

@@ -110,6 +110,12 @@
     <Compile Include="CrearProjecteWindow.xaml.cs">
       <DependentUpon>CrearProjecteWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="DesvincularParticipantWindow.xaml.cs">
+      <DependentUpon>DesvincularParticipantWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="EliminarUsuariWindow.xaml.cs">
+      <DependentUpon>EliminarUsuariWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="LoginWindow.xaml.cs">
       <DependentUpon>LoginWindow.xaml</DependentUpon>
     </Compile>
@@ -117,6 +123,7 @@
       <DependentUpon>ObrirProjecte.xaml</DependentUpon>
     </Compile>
     <Compile Include="Programs.cs\DataBase.cs" />
+    <Compile Include="Programs.cs\KanbanService.cs" />
     <Compile Include="TascaWindow.xaml.cs">
       <DependentUpon>TascaWindow.xaml</DependentUpon>
     </Compile>
@@ -126,6 +133,12 @@
     </Page>
     <Page Include="CrearProjecteWindow.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="DesvincularParticipantWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="EliminarUsuariWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="LoginWindow.xaml">

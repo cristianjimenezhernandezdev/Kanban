@@ -130,21 +130,49 @@
                             Foreground="#2F80ED"
                             SelectionChanged="cmbParticipants_SelectionChanged"/>
 
-                <Button Content="+"
+                        <Button Content="+"
                                 Width="25" Height="25"
-                                Margin="15 0 0 0"
+                                Margin="5 0 0 0"
                                 Background="#4CAF50"
                                 Foreground="White"
                                 BorderBrush="#2E7D32"
+                                ToolTip="Afegir participant al projecte"
                                 Click="BtnAddParticipant_Click"/>
+
+                        <Button Content="✕"
+                                Width="25" Height="25"
+                                Margin="5 0 0 0"
+                                Background="#FF9800"
+                                Foreground="White"
+                                BorderBrush="#F57C00"
+                                ToolTip="Desvincular participant del projecte"
+                                Click="BtnDesvincularParticipant_Click"/>
+
+                        <Button Content="-"
+                                Width="25" Height="25"
+                                Margin="5 0 0 0"
+                                Background="#F44336"
+                                Foreground="White"
+                                BorderBrush="#D32F2F"
+                                ToolTip="Esborrar usuari de la base de dades"
+                                Click="BtnEliminarUsuari_Click"/>
+                        
+                        <Button Content="Afegir Tasca"
+                                Width="100" Height="25"
+                                Margin="15 0 0 0"
+                                Background="#3498db"
+                                Foreground="White"
+                                BorderBrush="#2C6A99"
+                                ToolTip="Afegir tasca al Backlog"
+                                Click="btnAddBacklog_Click"/>
                     </StackPanel>
 
                     <!-- Aquí afegirem visualment els participants -->
                     <WrapPanel x:Name="panelParticipants"
                                 Margin="0 5 0 0"/>
                 </StackPanel>
-                        
-                    <!-- 🟣 BOTÓ "CREAR PROJECTE" -->
+
+                <!-- 🟣 BOTÓ "CREAR PROJECTE" -->
                 <Button x:Name="btnCrearProjecte" Style="{StaticResource BotoBase}"
                             Content="Crear Sprint"
                             Width="80" Background="LightGray" Foreground="Black"
@@ -171,7 +199,7 @@
                         HorizontalAlignment="Right"
                         VerticalAlignment="Bottom"
                         Click="btnObrirProjecte_Click"/>
-    </Grid>
+            </Grid>
         </Border>
 
 
@@ -180,43 +208,14 @@
         <!-- 🔵 BACKLOG -->
         <GroupBox Header="Backlog"
                     Grid.Row="1" Grid.Column="0" Margin="5">
-            <Grid>
-                <ListBox x:Name="listBacklog" Margin="5"
-                            AllowDrop="True"
-                            PreviewMouseMove="ListBox_PreviewMouseMove"
-                            Drop="ListBox_Drop"
-                            DragOver="ListBox_DragOver"
-                            MouseDoubleClick="ListBox_MouseDoubleClick"
-                            SelectionMode="Single"
-                            ItemTemplate="{StaticResource TascaItemTemplate}"/>
-
-                <!-- Botó circular per afegir tasca -->
-                <Button Content="+"
-                        Width="40" Height="40"
-                        FontSize="24"
-                        Background="#3498db"
-                        Foreground="White"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Bottom"
-                        Margin="10"
-                        Click="btnAddBacklog_Click">
-                    <Button.Style>
-                        <Style TargetType="Button">
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="Button">
-                                        <Border CornerRadius="20"
-                                                Background="{TemplateBinding Background}">
-                                            <ContentPresenter HorizontalAlignment="Center"
-                                                                VerticalAlignment="Center"/>
-                                        </Border>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </Button.Style>
-                </Button>
-            </Grid>
+            <ListBox x:Name="listBacklog" Margin="5"
+                        AllowDrop="True"
+                        PreviewMouseMove="ListBox_PreviewMouseMove"
+                        Drop="ListBox_Drop"
+                        DragOver="ListBox_DragOver"
+                        MouseDoubleClick="ListBox_MouseDoubleClick"
+                        SelectionMode="Single"
+                        ItemTemplate="{StaticResource TascaItemTemplate}"/>
         </GroupBox>
 
 
@@ -224,43 +223,14 @@
         <!-- 🟠 TODO -->
         <GroupBox Header="To Do"
                     Grid.Row="1" Grid.Column="1" Margin="5">
-            <Grid>
-                <ListBox x:Name="listTodo" Margin="5"
-                            AllowDrop="True"
-                            PreviewMouseMove="ListBox_PreviewMouseMove"
-                            Drop="ListBox_Drop"
-                            DragOver="ListBox_DragOver"
-                            MouseDoubleClick="ListBox_MouseDoubleClick"
-                            SelectionMode="Single"
-                            ItemTemplate="{StaticResource TascaItemTemplate}"/>
-
-                <Button Content="+"
-                        Width="40" Height="40"
-                        FontSize="24"
-                        Background="#2ecc71"
-                        Foreground="White"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Bottom"
-                        Margin="10"
-                        Click="btnAddTodo_Click">
-                    <Button.Style>
-                        <Style TargetType="Button">
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="Button">
-                                        <Border CornerRadius="20"
-                                                Background="{TemplateBinding Background}">
-                                            <ContentPresenter HorizontalAlignment="Center"
-                                                                VerticalAlignment="Center"/>
-                                        </Border>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </Button.Style>
-
-                </Button>
-            </Grid>
+            <ListBox x:Name="listTodo" Margin="5"
+                        AllowDrop="True"
+                        PreviewMouseMove="ListBox_PreviewMouseMove"
+                        Drop="ListBox_Drop"
+                        DragOver="ListBox_DragOver"
+                        MouseDoubleClick="ListBox_MouseDoubleClick"
+                        SelectionMode="Single"
+                        ItemTemplate="{StaticResource TascaItemTemplate}"/>
         </GroupBox>
 
 
