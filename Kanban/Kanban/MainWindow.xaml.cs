@@ -19,7 +19,9 @@ namespace Kanban
 
         private Tasques _draggedTask;
         private ListBox _sourceListBox;
-        private readonly KanbanService _kanbanService;
+        private readonly ProjectesService _projectesService;
+        private readonly ParticipantsService _participantsService;
+        private readonly ConsultesTasquesService _tasquesService;
 
         #endregion
 
@@ -28,7 +30,9 @@ namespace Kanban
         public MainWindow()
         {
             InitializeComponent();
-            _kanbanService = new KanbanService();
+            _projectesService = new ProjectesService();
+            _participantsService = new ParticipantsService();
+            _tasquesService = new ConsultesTasquesService();
             InicialitzarLlistes();
             CarregarDadesInicials();
         }
@@ -59,7 +63,7 @@ namespace Kanban
 
         private void CarregarParticipantsBD()
         {
-            Participants = _kanbanService.CarregarParticipants(LoginWindow.grupActiu);
+            Participants = _participantsService.CarregarParticipants(LoginWindow.grupActiu);
 
             cmbParticipants.Items.Clear();
             cmbSprintMaster.Items.Clear();
@@ -73,7 +77,7 @@ namespace Kanban
 
         private void CarregarProjecteActiu()
         {
-            string titol = _kanbanService.ObtenirTitolProjecteActiu(LoginWindow.grupActiu);
+            var titol = _projectesService.ObtenirTitolProjecteActiu(LoginWindow.grupActiu);
             if (titol != null)
                 txtSprintName.Text = titol;
         }
@@ -82,16 +86,16 @@ namespace Kanban
         {
             NetejarColumnes();
 
-            int? idProjecte = _kanbanService.ObtenirProjecteActiuId(LoginWindow.grupActiu);
-            if (idProjecte.HasValue)
-                CarregarTasquesProjecteSeleccionat(idProjecte.Value);
+            var idProjecte = _projectesService.ObtenirProjecteActiuId(LoginWindow.grupActiu);
+           
+                CarregarTasquesProjecteSeleccionat(idProjecte);
 
             RefrescarColumnes();
         }
 
         private void CarregarTasquesProjecteSeleccionat(int idProjecte)
         {
-            var tasques = _kanbanService.CarregarTasquesProjecte(idProjecte);
+            var tasques = _tasquesService.CarregarTasquesProjecte(idProjecte);
 
             foreach (var tasca in tasques)
             {
@@ -118,7 +122,7 @@ namespace Kanban
             if (w.ShowDialog() == true && w.TascaResultant != null)
             {
                 Backlog.Add(w.TascaResultant);
-                _kanbanService.OrdenarLlista(Backlog);
+                _tasquesService.OrdenarLlista(Backlog);
                 listBacklog.Items.Refresh();
             }
         }
@@ -134,7 +138,7 @@ namespace Kanban
 
             if (dialog.ShowDialog() == true)
             {
-                _kanbanService.OrdenarLlista(GetLlistaPerColumna(tasca.IdColumna));
+                _tasquesService.OrdenarLlista(GetLlistaPerColumna(tasca.IdColumna));
                 RefrescarColumnes();
             }
         }
@@ -175,7 +179,7 @@ namespace Kanban
             cmbSprintMaster.SelectedItem = null;
             if (!idResponsable.HasValue) return;
 
-            string nom = _kanbanService.ObtenirNomResponsable(idResponsable);
+            var nom = _projectesService.ObtenirNomResponsable(idResponsable);
             if (nom != null && cmbSprintMaster.Items.Contains(nom))
                 cmbSprintMaster.SelectedItem = nom;
         }
@@ -195,10 +199,10 @@ namespace Kanban
         {
             if (cmbParticipants.SelectedItem == null) return;
 
-            string nom = cmbParticipants.SelectedItem.ToString();
+            var nom = cmbParticipants.SelectedItem.ToString();
             if (ParticipantJaAfegit(nom)) return;
 
-            _kanbanService.AfegirParticipantAProjecte(nom, LoginWindow.grupActiu);
+            _participantsService.AfegirParticipantAProjecte(nom, LoginWindow.grupActiu);
             panelParticipants.Children.Add(CrearEtiquetaParticipant(nom, "#2196F3", 0));
         }
 
@@ -217,8 +221,8 @@ namespace Kanban
         {
             if (cmbSprintMaster.SelectedItem == null) return;
 
-            string nomUsuari = cmbSprintMaster.SelectedItem.ToString();
-            _kanbanService.ActualitzarSprintMaster(nomUsuari, LoginWindow.grupActiu);
+            var nomUsuari = cmbSprintMaster.SelectedItem.ToString();
+            _projectesService.ActualitzarSprintMaster(nomUsuari, LoginWindow.grupActiu);
         }
 
         private void BtnDesvincularParticipant_Click(object sender, RoutedEventArgs e)
@@ -233,7 +237,7 @@ namespace Kanban
             var wnd = new DesvincularParticipantWindow(participantsProjecte);
             if (wnd.ShowDialog() == true && !string.IsNullOrEmpty(wnd.ParticipantSeleccionat))
             {
-                _kanbanService.DesvincularParticipant(wnd.ParticipantSeleccionat, LoginWindow.grupActiu);
+                _participantsService.DesvincularParticipant(wnd.ParticipantSeleccionat, LoginWindow.grupActiu);
                 TreureParticipantDelPanell(wnd.ParticipantSeleccionat);
                 MessageBox.Show($"S'ha desvinculat '{wnd.ParticipantSeleccionat}' del projecte.");
             }
@@ -244,7 +248,7 @@ namespace Kanban
             var wnd = new EliminarUsuariWindow();
             if (wnd.ShowDialog() != true || string.IsNullOrEmpty(wnd.UsuariSeleccionat)) return;
 
-            string nom = wnd.UsuariSeleccionat;
+            var nom = wnd.UsuariSeleccionat;
             var result = MessageBox.Show(
                 $"Estàs segur que vols eliminar l'usuari '{nom}' de la base de dades?\nAquesta acció és irreversible.",
                 "Confirmar eliminació", MessageBoxButton.YesNo, MessageBoxImage.Warning);
@@ -253,7 +257,7 @@ namespace Kanban
             {
                 try
                 {
-                    _kanbanService.EliminarUsuari(nom, LoginWindow.grupActiu);
+                    _participantsService.EliminarUsuari(nom, LoginWindow.grupActiu);
                     CarregarParticipantsBD();
                     TreureParticipantDelPanell(nom);
                     MessageBox.Show($"S'ha eliminat l'usuari '{nom}' de la base de dades.");
@@ -338,8 +342,7 @@ namespace Kanban
             TreureTascaDeLlistaOrigen(tasca);
             AfegirTascaALlistaDestí(tasca, targetListBox);
 
-            try { _kanbanService.ActualitzarColumnaTasca(tasca); }
-            catch (Exception ex) { MessageBox.Show("Error al actualitzar la columna: " + ex.Message); }
+            _tasquesService.ActualitzarColumnaTasca(tasca);
 
             OrdenarTotesLesColumnes();
             RefrescarColumnes();
@@ -352,9 +355,9 @@ namespace Kanban
 
         private void AfegirTascaALlistaDestí(Tasques tasca, ListBox targetListBox)
         {
-            byte novaColumna = GetColumnaPerListBox(targetListBox);
+            var novaColumna = GetColumnaPerListBox(targetListBox);
             tasca.IdColumna = novaColumna;
-            tasca.Estat = KanbanService.GetEstatPerColumna(novaColumna);
+            tasca.Estat = ConsultesTasquesService.GetEstatPerColumna(novaColumna);
             GetLlistaPerListBox(targetListBox)?.Add(tasca);
         }
 
@@ -380,10 +383,10 @@ namespace Kanban
 
         private void OrdenarTotesLesColumnes()
         {
-            _kanbanService.OrdenarLlista(Backlog);
-            _kanbanService.OrdenarLlista(Todo);
-            _kanbanService.OrdenarLlista(Doing);
-            _kanbanService.OrdenarLlista(Done);
+            _tasquesService.OrdenarLlista(Backlog);
+            _tasquesService.OrdenarLlista(Todo);
+            _tasquesService.OrdenarLlista(Doing);
+            _tasquesService.OrdenarLlista(Done);
         }
 
         private void AfegirTascaAColumna(Tasques tasca)
@@ -429,8 +432,8 @@ namespace Kanban
                 var tb = b.Child as TextBlock;
                 if (tb != null)
                 {
-                    string text = tb.Text;
-                    int spaceIndex = text.LastIndexOf("  ");
+                    var text = tb.Text;
+                    var spaceIndex = text.LastIndexOf("  ");
                     participants.Add(spaceIndex > 0 ? text.Substring(0, spaceIndex) : text.Trim());
                 }
             }

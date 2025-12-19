@@ -17,12 +17,12 @@ namespace Kanban
         private readonly bool _isEditMode;
         private readonly Tasques _tascaOriginal;
         private readonly byte _columnaPerDefecte;
-        private readonly KanbanService _kanbanService;
+        private readonly ConsultesTasquesService _tasquesService;
 
         public TascaWindow(List<string> participants, Tasques tasca = null, byte columnaPerDefecte = 1)
         {
             InitializeComponent();
-            _kanbanService = new KanbanService();
+            _tasquesService = new ConsultesTasquesService();
             cmbParticipants.ItemsSource = participants;
             cmbPrioritat.ItemsSource = new[] { "Alta", "Mitja", "Baixa" };
 
@@ -33,7 +33,7 @@ namespace Kanban
             if (_isEditMode)
             {
                 txtDescripcio.Text = tasca.Descripcio;
-                int indexPrioritat = Math.Max(0, tasca.Prioritat - 1);
+                var indexPrioritat = Math.Max(0, tasca.Prioritat - 1);
                 if (indexPrioritat < 3)
                     cmbPrioritat.SelectedIndex = indexPrioritat;
 
@@ -93,11 +93,11 @@ namespace Kanban
 
         private bool CrearNovaTasca()
         {
-            Tasques nova = new Tasques
+            var nova = new Tasques
             {
                 Titol = Descripcio,
                 Descripcio = Descripcio,
-                Estat = KanbanService.GetEstatPerColumna(_columnaPerDefecte),
+                Estat = ConsultesTasquesService.GetEstatPerColumna(_columnaPerDefecte),
                 Responsable = Responsable,
                 Prioritat = Prioritat,
                 DataVenciment = DataVenciment ?? DateTime.MinValue,
@@ -108,7 +108,7 @@ namespace Kanban
 
             try
             {
-                nova.IdTasca = _kanbanService.InserirTasca(nova, LoginWindow.grupActiu);
+                nova.IdTasca = _tasquesService.InserirTasca(nova, LoginWindow.grupActiu);
                 TascaResultant = nova;
                 return true;
             }
@@ -130,7 +130,7 @@ namespace Kanban
 
             try
             {
-                _kanbanService.ActualitzarDetallsTasca(_tascaOriginal, LoginWindow.grupActiu);
+                _tasquesService.ActualitzarDetallsTasca(_tascaOriginal, LoginWindow.grupActiu);
                 TascaResultant = _tascaOriginal;
                 return true;
             }

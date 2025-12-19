@@ -122,8 +122,10 @@
     <Compile Include="ObrirProjecte.xaml.cs">
       <DependentUpon>ObrirProjecte.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Programs.cs\ConsultesTasquesService.cs" />
     <Compile Include="Programs.cs\DataBase.cs" />
-    <Compile Include="Programs.cs\KanbanService.cs" />
+    <Compile Include="Programs.cs\ParticipantsService.cs" />
+    <Compile Include="Programs.cs\ProjectesService.cs" />
     <Compile Include="TascaWindow.xaml.cs">
       <DependentUpon>TascaWindow.xaml</DependentUpon>
     </Compile>
