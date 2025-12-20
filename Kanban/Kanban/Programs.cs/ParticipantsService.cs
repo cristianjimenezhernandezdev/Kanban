@@ -6,13 +6,13 @@ namespace Kanban.Programs.cs
 {
     public class ParticipantsService
     {
+        // Carrega tots els usuaris del grup (per al desplegable)
         public List<string> CarregarParticipants(int grupActiu)
         {
             var participants = new List<string>();
 
-            using (var conn = new MySqlConnection(Database.connectionString))
+            using (var conn = DataBase.ObtenirConnexio())
             {
-                conn.Open();
                 const string query = "SELECT Nom FROM Usuaris WHERE IdGrup = @grup";
 
                 using (var cmd = new MySqlCommand(query, conn))
@@ -32,12 +32,39 @@ namespace Kanban.Programs.cs
             return participants;
         }
 
+        // Carrega els participants vinculats a un projecte específic
+        public List<string> CarregarParticipantsProjecte(int idProjecte)
+        {
+            var participants = new List<string>();
+
+            using (var conn = DataBase.ObtenirConnexio())
+            {
+                const string query = @"SELECT u.Nom 
+                                       FROM Usuaris u
+                                       INNER JOIN Usuaris_projectes up ON u.IdUsuari = up.IdUsuari
+                                       WHERE up.IdProjecte = @idProjecte";
+
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@idProjecte", idProjecte);
+
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            participants.Add(reader["Nom"].ToString());
+                        }
+                    }
+                }
+            }
+
+            return participants;
+        }
+
         public void AfegirParticipantAProjecte(string nom, int grupActiu)
         {
-            using (var conn = new MySqlConnection(Database.connectionString))
+            using (var conn = DataBase.ObtenirConnexio())
             {
-                conn.Open();
-
                 int? idUsuari = ObtenirIdUsuariPerNom(conn, nom, grupActiu);
                 int? idProjecte = ObtenirProjecteActiuId(conn, grupActiu);
 
@@ -55,9 +82,8 @@ namespace Kanban.Programs.cs
 
         public void DesvincularParticipant(string nom, int grupActiu)
         {
-            using (var conn = new MySqlConnection(Database.connectionString))
+            using (var conn = DataBase.ObtenirConnexio())
             {
-                conn.Open();
                 int? idUsuari = ObtenirIdUsuariPerNom(conn, nom, grupActiu);
                 int? idProjecte = ObtenirProjecteActiuId(conn, grupActiu);
 
@@ -76,41 +102,38 @@ namespace Kanban.Programs.cs
 
         public void EliminarUsuari(string nom, int grupActiu)
         {
-            using (var conn = new MySqlConnection(Database.connectionString))
+            using (var conn = DataBase.ObtenirConnexio())
             {
-                conn.Open();
-                int idUsuari = ObtenirIdUsuariPerNom(conn, nom, grupActiu);
-               
+                int? idUsuari = ObtenirIdUsuariPerNom(conn, nom, grupActiu);
+                if (!idUsuari.HasValue) return;
 
-                ExecutarComanda(conn, "DELETE FROM Usuaris_projectes WHERE IdUsuari = @id", idUsuari);
-                ExecutarComanda(conn, "UPDATE Tasca SET IdUsuariResponsable = NULL WHERE IdUsuariResponsable = @id", idUsuari);
-                ExecutarComanda(conn, "DELETE FROM Usuaris WHERE IdUsuari = @id", idUsuari);
+                ExecutarComanda(conn, "DELETE FROM Usuaris_projectes WHERE IdUsuari = @id", idUsuari.Value);
+                ExecutarComanda(conn, "UPDATE Tasca SET IdUsuariResponsable = NULL WHERE IdUsuariResponsable = @id", idUsuari.Value);
+                ExecutarComanda(conn, "DELETE FROM Usuaris WHERE IdUsuari = @id", idUsuari.Value);
             }
         }
 
-        private static int ObtenirIdUsuariPerNom(MySqlConnection conn, string nomUsuari, int grupActiu)
+        private static int? ObtenirIdUsuariPerNom(MySqlConnection conn, string nomUsuari, int grupActiu)
         {
             const string sql = "SELECT IdUsuari FROM Usuaris WHERE Nom = @nom AND IdGrup = @grup";
             using (var cmd = new MySqlCommand(sql, conn))
             {
                 cmd.Parameters.AddWithValue("@nom", nomUsuari);
                 cmd.Parameters.AddWithValue("@grup", grupActiu);
-                int result= cmd.ExecuteNonQuery();
-                //var result = cmd.ExecuteScalar();
-                return result;
+                var result = cmd.ExecuteScalar();
+                return result == null || result == DBNull.Value ? (int?)null : Convert.ToInt32(result);
             }
         }
 
-        private static int ObtenirProjecteActiuId(MySqlConnection conn, int grupActiu)
+        private static int? ObtenirProjecteActiuId(MySqlConnection conn, int grupActiu)
         {
             const string sql = @"SELECT IdProjecte FROM Projectes 
                                  WHERE IdGrup = @grup ORDER BY IdProjecte DESC LIMIT 1";
             using (var cmd = new MySqlCommand(sql, conn))
             {
                 cmd.Parameters.AddWithValue("@grup", grupActiu);
-                int result = cmd.ExecuteNonQuery();
-                
-                return result;
+                var result = cmd.ExecuteScalar();
+                return result == null || result == DBNull.Value ? (int?)null : Convert.ToInt32(result);
             }
         }
 

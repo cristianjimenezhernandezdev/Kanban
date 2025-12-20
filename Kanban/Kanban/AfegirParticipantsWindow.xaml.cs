@@ -1,17 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+﻿using System.Windows;
 using Kanban.Programs.cs;
 using MySql.Data.MySqlClient;
 
@@ -38,24 +25,23 @@ namespace Kanban
                 return;
             }
 
-            using (MySqlConnection conn = new MySqlConnection(Database.connectionString))
+            using (var conn = DataBase.ObtenirConnexio())
             {
-                conn.Open();
+                const string query = @"INSERT INTO Usuaris (Nom, Cognom, IdGrup)
+                                       VALUES (@nom, @cognom, @idGrup)";
 
-                string query = @"INSERT INTO Usuaris (Nom, Cognom, IdGrup)
-                                 VALUES (@nom, @cognom, @idGrup)";
-
-                MySqlCommand cmd = new MySqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@nom", nom);
-                cmd.Parameters.AddWithValue("@cognom", cognom);
-                cmd.Parameters.AddWithValue("@idGrup", LoginWindow.grupActiu);
-
-                cmd.ExecuteNonQuery();
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@nom", nom);
+                    cmd.Parameters.AddWithValue("@cognom", cognom);
+                    cmd.Parameters.AddWithValue("@idGrup", DataBase.grupActiu);
+                    cmd.ExecuteNonQuery();
+                }
             }
 
             MessageBox.Show("Participant afegit correctament.");
-            this.DialogResult = true;
-            this.Close();
+            DialogResult = true;
+            Close();
         }
     }
 }

@@ -63,7 +63,7 @@ namespace Kanban
 
         private void CarregarParticipantsBD()
         {
-            Participants = _participantsService.CarregarParticipants(LoginWindow.grupActiu);
+            Participants = _participantsService.CarregarParticipants(DataBase.grupActiu);
 
             cmbParticipants.Items.Clear();
             cmbSprintMaster.Items.Clear();
@@ -77,7 +77,7 @@ namespace Kanban
 
         private void CarregarProjecteActiu()
         {
-            var titol = _projectesService.ObtenirTitolProjecteActiu(LoginWindow.grupActiu);
+            var titol = _projectesService.ObtenirTitolProjecteActiu(DataBase.grupActiu);
             if (titol != null)
                 txtSprintName.Text = titol;
         }
@@ -86,9 +86,14 @@ namespace Kanban
         {
             NetejarColumnes();
 
-            var idProjecte = _projectesService.ObtenirProjecteActiuId(LoginWindow.grupActiu);
-           
+            var idProjecte = _projectesService.ObtenirProjecteActiuId(DataBase.grupActiu);
+            
+            if (idProjecte > 0)
+            {
+                // Carregar els participants vinculats al projecte actiu
+                CarregarParticipantsProjecte(idProjecte);
                 CarregarTasquesProjecteSeleccionat(idProjecte);
+            }
 
             RefrescarColumnes();
         }
@@ -167,10 +172,26 @@ namespace Kanban
             {
                 txtSprintName.Text = wnd.TitolProjecteSeleccionat;
                 ActualitzarSprintMasterUI(wnd.IdResponsableSeleccionat);
+                
+                // Carregar els participants vinculats al projecte seleccionat
+                CarregarParticipantsProjecte(wnd.IdProjecteSeleccionat);
+                
                 NetejarColumnes();
-                RefrescarColumnes();
                 CarregarTasquesProjecteSeleccionat(wnd.IdProjecteSeleccionat);
                 RefrescarColumnes();
+            }
+        }
+
+        // Carrega els participants d'un projecte específic al panell
+        private void CarregarParticipantsProjecte(int idProjecte)
+        {
+            panelParticipants.Children.Clear();
+            
+            var participantsProjecte = _participantsService.CarregarParticipantsProjecte(idProjecte);
+            
+            foreach (var nom in participantsProjecte)
+            {
+                panelParticipants.Children.Add(CrearEtiquetaParticipant(nom, "#2196F3", 0));
             }
         }
 
@@ -202,7 +223,7 @@ namespace Kanban
             var nom = cmbParticipants.SelectedItem.ToString();
             if (ParticipantJaAfegit(nom)) return;
 
-            _participantsService.AfegirParticipantAProjecte(nom, LoginWindow.grupActiu);
+            _participantsService.AfegirParticipantAProjecte(nom, DataBase.grupActiu);
             panelParticipants.Children.Add(CrearEtiquetaParticipant(nom, "#2196F3", 0));
         }
 
@@ -222,7 +243,7 @@ namespace Kanban
             if (cmbSprintMaster.SelectedItem == null) return;
 
             var nomUsuari = cmbSprintMaster.SelectedItem.ToString();
-            _projectesService.ActualitzarSprintMaster(nomUsuari, LoginWindow.grupActiu);
+            _projectesService.ActualitzarSprintMaster(nomUsuari, DataBase.grupActiu);
         }
 
         private void BtnDesvincularParticipant_Click(object sender, RoutedEventArgs e)
@@ -237,7 +258,7 @@ namespace Kanban
             var wnd = new DesvincularParticipantWindow(participantsProjecte);
             if (wnd.ShowDialog() == true && !string.IsNullOrEmpty(wnd.ParticipantSeleccionat))
             {
-                _participantsService.DesvincularParticipant(wnd.ParticipantSeleccionat, LoginWindow.grupActiu);
+                _participantsService.DesvincularParticipant(wnd.ParticipantSeleccionat, DataBase.grupActiu);
                 TreureParticipantDelPanell(wnd.ParticipantSeleccionat);
                 MessageBox.Show($"S'ha desvinculat '{wnd.ParticipantSeleccionat}' del projecte.");
             }
@@ -257,7 +278,7 @@ namespace Kanban
             {
                 try
                 {
-                    _participantsService.EliminarUsuari(nom, LoginWindow.grupActiu);
+                    _participantsService.EliminarUsuari(nom, DataBase.grupActiu);
                     CarregarParticipantsBD();
                     TreureParticipantDelPanell(nom);
                     MessageBox.Show($"S'ha eliminat l'usuari '{nom}' de la base de dades.");

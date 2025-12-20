@@ -41,9 +41,8 @@ namespace Kanban.Programs.cs
         {
             var tasques = new List<Tasques>();
 
-            using (var conn = new MySqlConnection(Database.connectionString))
+            using (var conn = DataBase.ObtenirConnexio())
             {
-                conn.Open();
                 const string sql = @"SELECT t.IdTasca, t.IdProjecte, t.IdColumna, t.Descripcio,
                                             t.Prioritat, t.DataCreacio, t.DataVenciment,
                                             u.Nom AS NomResponsable
@@ -70,34 +69,29 @@ namespace Kanban.Programs.cs
 
         public void ActualitzarColumnaTasca(Tasques tasca)
         {
-            if (tasca.IdTasca > 0)
+            if (tasca.IdTasca <= 0) return;
+
+            using (var conn = DataBase.ObtenirConnexio())
             {
-
-
-                using (var conn = new MySqlConnection(Database.connectionString))
+                const string sql = "UPDATE Tasca SET IdColumna = @idColumna WHERE IdTasca = @idTasca";
+                using (var cmd = new MySqlCommand(sql, conn))
                 {
-                    conn.Open();
-                    const string sql = "UPDATE Tasca SET IdColumna = @idColumna WHERE IdTasca = @idTasca";
-                    using (var cmd = new MySqlCommand(sql, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@idColumna", tasca.IdColumna);
-                        cmd.Parameters.AddWithValue("@idTasca", tasca.IdTasca);
-                        cmd.ExecuteNonQuery();
-                    }
+                    cmd.Parameters.AddWithValue("@idColumna", tasca.IdColumna);
+                    cmd.Parameters.AddWithValue("@idTasca", tasca.IdTasca);
+                    cmd.ExecuteNonQuery();
                 }
             }
         }
 
         public int InserirTasca(Tasques tasca, int grupActiu)
         {
-            using (var conn = new MySqlConnection(Database.connectionString))
+            using (var conn = DataBase.ObtenirConnexio())
             {
-                conn.Open();
+                int? idProjecte = ObtenirProjecteActiuId(conn, grupActiu);
+                if (!idProjecte.HasValue)
+                    throw new InvalidOperationException("No hi ha cap projecte actiu.");
 
-                int idProjecte = ObtenirProjecteActiuId(conn, grupActiu);
-                
-
-                tasca.IdProjecte = idProjecte;
+                tasca.IdProjecte = idProjecte.Value;
                 int? idUsuariResponsable = string.IsNullOrEmpty(tasca.Responsable)
                     ? (int?)null
                     : ObtenirIdUsuariPerNom(conn, tasca.Responsable, grupActiu);
@@ -119,44 +113,39 @@ namespace Kanban.Programs.cs
                     cmd.Parameters.AddWithValue("@dataVenciment",
                         tasca.DataVenciment == DateTime.MinValue ? (object)DBNull.Value : tasca.DataVenciment);
 
-                    int result = cmd.ExecuteNonQuery();
-                    return result;
+                    var result = cmd.ExecuteScalar();
+                    return Convert.ToInt32(result);
                 }
             }
-            }
-        
+        }
 
         public void ActualitzarDetallsTasca(Tasques tasca, int grupActiu)
         {
-            if (tasca.IdTasca > 0)
+            if (tasca.IdTasca <= 0) return;
+
+            using (var conn = DataBase.ObtenirConnexio())
             {
+                int? idUsuariResponsable = string.IsNullOrEmpty(tasca.Responsable)
+                    ? (int?)null
+                    : ObtenirIdUsuariPerNom(conn, tasca.Responsable, grupActiu);
 
-                using (var conn = new MySqlConnection(Database.connectionString))
-                {
-                    conn.Open();
-
-                    int? idUsuariResponsable = string.IsNullOrEmpty(tasca.Responsable)
-                        ? (int?)null
-                        : ObtenirIdUsuariPerNom(conn, tasca.Responsable, grupActiu);
-
-                    const string sql = @"UPDATE Tasca
+                const string sql = @"UPDATE Tasca
                                         SET Descripcio = @descripcio,
                                             Prioritat = @prioritat,
                                             DataVenciment = @dataVenciment,
                                             IdUsuariResponsable = @responsable
                                         WHERE IdTasca = @id";
 
-                    using (var cmd = new MySqlCommand(sql, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@descripcio", tasca.Descripcio);
-                        cmd.Parameters.AddWithValue("@prioritat", tasca.Prioritat);
-                        cmd.Parameters.AddWithValue("@dataVenciment",
-                            tasca.DataVenciment == DateTime.MinValue ? (object)DBNull.Value : tasca.DataVenciment);
-                        cmd.Parameters.AddWithValue("@responsable", (object)idUsuariResponsable ?? DBNull.Value);
-                        cmd.Parameters.AddWithValue("@id", tasca.IdTasca);
+                using (var cmd = new MySqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@descripcio", tasca.Descripcio);
+                    cmd.Parameters.AddWithValue("@prioritat", tasca.Prioritat);
+                    cmd.Parameters.AddWithValue("@dataVenciment",
+                        tasca.DataVenciment == DateTime.MinValue ? (object)DBNull.Value : tasca.DataVenciment);
+                    cmd.Parameters.AddWithValue("@responsable", (object)idUsuariResponsable ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@id", tasca.IdTasca);
 
-                        cmd.ExecuteNonQuery();
-                    }
+                    cmd.ExecuteNonQuery();
                 }
             }
         }
@@ -177,7 +166,8 @@ namespace Kanban.Programs.cs
                 default: return string.Empty;
             }
         }
-        //Aixo agafa de la BDD i la reparteix per fer-la servir
+
+        // Aixo agafa de la BDD i la reparteix per fer-la servir
         private static Tasques MapTascaFromReader(MySqlDataReader reader)
         {
             var tasca = new Tasques
@@ -196,32 +186,29 @@ namespace Kanban.Programs.cs
             return tasca;
         }
 
-        private static int ObtenirProjecteActiuId(MySqlConnection conn, int grupActiu)
+        private static int? ObtenirProjecteActiuId(MySqlConnection conn, int grupActiu)
         {
             const string sql = @"SELECT IdProjecte FROM Projectes 
                                  WHERE IdGrup = @grup ORDER BY IdProjecte DESC LIMIT 1";
             using (var cmd = new MySqlCommand(sql, conn))
             {
                 cmd.Parameters.AddWithValue("@grup", grupActiu);
-                int result = cmd.ExecuteNonQuery();
-                return result;
+                var result = cmd.ExecuteScalar();
+                return result == null || result == DBNull.Value ? (int?)null : Convert.ToInt32(result);
             }
         }
-        
 
-        private static int ObtenirIdUsuariPerNom(MySqlConnection conn, string nomUsuari, int grupActiu)
+        private static int? ObtenirIdUsuariPerNom(MySqlConnection conn, string nomUsuari, int grupActiu)
         {
             const string sql = "SELECT IdUsuari FROM Usuaris WHERE Nom = @nom AND IdGrup = @grup";
             using (var cmd = new MySqlCommand(sql, conn))
             {
                 cmd.Parameters.AddWithValue("@nom", nomUsuari);
                 cmd.Parameters.AddWithValue("@grup", grupActiu);
-                int result = cmd.ExecuteNonQuery();
-
-                return result;
+                var result = cmd.ExecuteScalar();
+                return result == null || result == DBNull.Value ? (int?)null : Convert.ToInt32(result);
             }
         }
-        
 
         private static int CompararTasques(Tasques x, Tasques y)
         {

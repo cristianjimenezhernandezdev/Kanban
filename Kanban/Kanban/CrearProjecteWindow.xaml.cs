@@ -1,22 +1,19 @@
 ﻿using System;
-using System.Data.SqlClient;
 using System.Windows;
 using Kanban.Programs.cs;
 using MySql.Data.MySqlClient;
 
 namespace Kanban
 {
-    /// <summary>
-    /// Lógica de interacción para CrearProjecteWindow.xaml
-    /// </summary>
     public partial class CrearProjecteWindow : Window
     {
-
         public string TitolProjecteCreat { get; private set; }
+
         public CrearProjecteWindow()
         {
             InitializeComponent();
         }
+
         private void BtnCrear_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtTitol.Text))
@@ -25,28 +22,24 @@ namespace Kanban
                 return;
             }
 
-            using (MySqlConnection conn = new MySqlConnection(Database.connectionString))
+            using (var conn = DataBase.ObtenirConnexio())
             {
-                conn.Open();
+                const string sql = @"INSERT INTO Projectes (Titol, DataInici, DataFi, IdGrup)
+                                     VALUES (@titol, @dataInici, @dataFi, @idGrup)";
 
-                string sql = @"
-                    INSERT INTO Projectes
-                    (Titol, DataInici, DataFi, IdGrup)
-                    VALUES
-                    (@titol, @dataInici, @dataFi, @idGrup)";
-
-                MySqlCommand cmd = new MySqlCommand(sql, conn);
-                cmd.Parameters.AddWithValue("@titol", txtTitol.Text);
-                cmd.Parameters.AddWithValue("@dataInici", DateTime.Now);
-                cmd.Parameters.AddWithValue("@dataFi", (object)dpDataFi.SelectedDate ?? DBNull.Value);
-                cmd.Parameters.AddWithValue("@idGrup", LoginWindow.grupActiu);
-
-                cmd.ExecuteNonQuery();
+                using (var cmd = new MySqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@titol", txtTitol.Text);
+                    cmd.Parameters.AddWithValue("@dataInici", DateTime.Now);
+                    cmd.Parameters.AddWithValue("@dataFi", (object)dpDataFi.SelectedDate ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@idGrup", DataBase.grupActiu);
+                    cmd.ExecuteNonQuery();
+                }
             }
 
             TitolProjecteCreat = txtTitol.Text;
-            this.DialogResult = true;
-            this.Close();
+            DialogResult = true;
+            Close();
         }
     }
 }

@@ -17,14 +17,12 @@ namespace Kanban
 
         private void CarregarUsuaris()
         {
-            using (MySqlConnection conn = new MySqlConnection(Database.connectionString))
+            using (var conn = DataBase.ObtenirConnexio())
             {
-                conn.Open();
-
                 const string sql = "SELECT Nom FROM Usuaris WHERE IdGrup = @grup";
-                using (MySqlCommand cmd = new MySqlCommand(sql, conn))
+                using (var cmd = new MySqlCommand(sql, conn))
                 {
-                    cmd.Parameters.AddWithValue("@grup", LoginWindow.grupActiu);
+                    cmd.Parameters.AddWithValue("@grup", DataBase.grupActiu);
                     using (var reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())

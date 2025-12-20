@@ -49,9 +49,17 @@
                 </Border.Style>
                 <StackPanel>
                     <TextBlock Text="{Binding Descripcio}" FontWeight="SemiBold" TextWrapping="Wrap"/>
-                    <TextBlock Text="{Binding Responsable}"
-                               FontSize="12"
-                               Foreground="#666"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Responsable}"
+                                   FontSize="12"
+                                   Foreground="#666"/>
+                        <TextBlock Text=" - "
+                                   FontSize="12"
+                                   Foreground="#666"/>
+                        <TextBlock Text="{Binding DataVenciment, StringFormat=d}"
+                                   FontSize="12"
+                                   Foreground="#999"/>
+                    </StackPanel>
                 </StackPanel>
             </Border>
         </DataTemplate>
