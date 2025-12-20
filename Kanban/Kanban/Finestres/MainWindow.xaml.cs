@@ -80,9 +80,14 @@ namespace Kanban
         private void CarregarProjecteActiu()
         {
             var titol = _projectesService.ObtenirTitolProjecteActiu(DataBase.grupActiu);
+            var data = _projectesService.ObtenirDataProjecteActiu(DataBase.grupActiu);
             if (titol != null)
-                txtSprintName.Text = titol;
+                txtSprintName.Text = $"{titol} {data}";
+            
+
+
         }
+
 
         private void CarregarTasquesProjecteActiu()
         {

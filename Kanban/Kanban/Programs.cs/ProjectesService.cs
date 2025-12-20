@@ -12,16 +12,41 @@ namespace Kanban.Programs.cs
                 const string sql = @"SELECT Titol FROM Projectes 
                                      WHERE IdGrup = @grup 
                                      ORDER BY IdProjecte DESC LIMIT 1";
-
+                
                 using (var cmd = new MySqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("@grup", grupActiu);
+                    
                     var result = cmd.ExecuteScalar();
                     return result?.ToString() ?? "";
-                }
-            }
-        }
 
+                }             
+
+                }
+
+          }
+        
+        public string ObtenirDataProjecteActiu(int grupActiu)
+        {
+            using (var conn = DataBase.ObtenirConnexio())
+            {
+               
+                const string sql = @"SELECT DataFi FROM Projectes 
+                                     WHERE IdGrup = @grup 
+                                     ORDER BY IdProjecte DESC LIMIT 1";
+                using (var cmd = new MySqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@grup", grupActiu);
+
+                    var result = cmd.ExecuteScalar();
+                    return result?.ToString() ?? "";
+
+                }
+
+            }
+
+        }
+    
         public int ObtenirProjecteActiuId(int grupActiu)
         {
             using (var conn = DataBase.ObtenirConnexio())

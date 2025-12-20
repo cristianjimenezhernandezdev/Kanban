@@ -100,70 +100,70 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
+    <ApplicationDefinition Include="Finestres\App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="AfegirParticipantsWindow.xaml.cs">
+    <Compile Include="Finestres\AfegirParticipantsWindow.xaml.cs">
       <DependentUpon>AfegirParticipantsWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="CrearProjecteWindow.xaml.cs">
+    <Compile Include="Finestres\CrearProjecteWindow.xaml.cs">
       <DependentUpon>CrearProjecteWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DesvincularParticipantWindow.xaml.cs">
+    <Compile Include="Finestres\DesvincularParticipantWindow.xaml.cs">
       <DependentUpon>DesvincularParticipantWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="EliminarUsuariWindow.xaml.cs">
+    <Compile Include="Finestres\EliminarUsuariWindow.xaml.cs">
       <DependentUpon>EliminarUsuariWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="LoginWindow.xaml.cs">
+    <Compile Include="Finestres\LoginWindow.xaml.cs">
       <DependentUpon>LoginWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ObrirProjecte.xaml.cs">
+    <Compile Include="Finestres\ObrirProjecte.xaml.cs">
       <DependentUpon>ObrirProjecte.xaml</DependentUpon>
     </Compile>
     <Compile Include="Programs.cs\ConsultesTasquesService.cs" />
     <Compile Include="Programs.cs\DataBase.cs" />
     <Compile Include="Programs.cs\ParticipantsService.cs" />
     <Compile Include="Programs.cs\ProjectesService.cs" />
-    <Compile Include="TascaWindow.xaml.cs">
+    <Compile Include="Finestres\TascaWindow.xaml.cs">
       <DependentUpon>TascaWindow.xaml</DependentUpon>
     </Compile>
-    <Page Include="AfegirParticipantsWindow.xaml">
+    <Page Include="Finestres\AfegirParticipantsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="CrearProjecteWindow.xaml">
+    <Page Include="Finestres\CrearProjecteWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="DesvincularParticipantWindow.xaml">
+    <Page Include="Finestres\DesvincularParticipantWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="EliminarUsuariWindow.xaml">
+    <Page Include="Finestres\EliminarUsuariWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="LoginWindow.xaml">
+    <Page Include="Finestres\LoginWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MainWindow.xaml">
+    <Page Include="Finestres\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="App.xaml.cs">
+    <Compile Include="Finestres\App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
+    <Compile Include="Finestres\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="ObrirProjecte.xaml">
+    <Page Include="Finestres\ObrirProjecte.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="TascaWindow.xaml">
+    <Page Include="Finestres\TascaWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -186,20 +186,18 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="packages.config" />
+    <None Include="Finestres\packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="Finestres\App.config" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Finestres\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
