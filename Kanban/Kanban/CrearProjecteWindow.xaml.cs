@@ -22,6 +22,15 @@ namespace Kanban
                 return;
             }
 
+            // Si la data de fi és anterior a avui o no s'ha seleccionat, posem avui
+            DateTime? dataFi = null;
+            if (dpDataFi.SelectedDate.HasValue)
+            {
+                dataFi = dpDataFi.SelectedDate.Value >= DateTime.Today 
+                    ? dpDataFi.SelectedDate.Value 
+                    : DateTime.Today;
+            }
+
             using (var conn = DataBase.ObtenirConnexio())
             {
                 const string sql = @"INSERT INTO Projectes (Titol, DataInici, DataFi, IdGrup)
@@ -31,7 +40,7 @@ namespace Kanban
                 {
                     cmd.Parameters.AddWithValue("@titol", txtTitol.Text);
                     cmd.Parameters.AddWithValue("@dataInici", DateTime.Now);
-                    cmd.Parameters.AddWithValue("@dataFi", (object)dpDataFi.SelectedDate ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@dataFi", (object)dataFi ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@idGrup", DataBase.grupActiu);
                     cmd.ExecuteNonQuery();
                 }

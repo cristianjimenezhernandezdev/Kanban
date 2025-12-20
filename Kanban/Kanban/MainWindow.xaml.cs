@@ -22,6 +22,7 @@ namespace Kanban
         private readonly ProjectesService _projectesService;
         private readonly ParticipantsService _participantsService;
         private readonly ConsultesTasquesService _tasquesService;
+        private int _projecteActiuId;
 
         #endregion
 
@@ -33,6 +34,7 @@ namespace Kanban
             _projectesService = new ProjectesService();
             _participantsService = new ParticipantsService();
             _tasquesService = new ConsultesTasquesService();
+            _projecteActiuId = 0;
             InicialitzarLlistes();
             CarregarDadesInicials();
         }
@@ -87,6 +89,7 @@ namespace Kanban
             NetejarColumnes();
 
             var idProjecte = _projectesService.ObtenirProjecteActiuId(DataBase.grupActiu);
+            _projecteActiuId = idProjecte;
             
             if (idProjecte > 0)
             {
@@ -173,11 +176,12 @@ namespace Kanban
                 txtSprintName.Text = wnd.TitolProjecteSeleccionat;
                 ActualitzarSprintMasterUI(wnd.IdResponsableSeleccionat);
                 
+                _projecteActiuId = wnd.IdProjecteSeleccionat;
                 // Carregar els participants vinculats al projecte seleccionat
-                CarregarParticipantsProjecte(wnd.IdProjecteSeleccionat);
+                CarregarParticipantsProjecte(_projecteActiuId);
                 
                 NetejarColumnes();
-                CarregarTasquesProjecteSeleccionat(wnd.IdProjecteSeleccionat);
+                CarregarTasquesProjecteSeleccionat(_projecteActiuId);
                 RefrescarColumnes();
             }
         }
@@ -189,8 +193,12 @@ namespace Kanban
             
             var participantsProjecte = _participantsService.CarregarParticipantsProjecte(idProjecte);
             
+            // Debug: mostrar quants participants s'han carregat
+            System.Diagnostics.Debug.WriteLine($"Participants carregats per projecte {idProjecte}: {participantsProjecte.Count}");
+            
             foreach (var nom in participantsProjecte)
             {
+                System.Diagnostics.Debug.WriteLine($"  - {nom}");
                 panelParticipants.Children.Add(CrearEtiquetaParticipant(nom, "#2196F3", 0));
             }
         }
@@ -223,7 +231,8 @@ namespace Kanban
             var nom = cmbParticipants.SelectedItem.ToString();
             if (ParticipantJaAfegit(nom)) return;
 
-            _participantsService.AfegirParticipantAProjecte(nom, DataBase.grupActiu);
+            var projecteId = _projecteActiuId > 0 ? _projecteActiuId : _projectesService.ObtenirProjecteActiuId(DataBase.grupActiu);
+            _participantsService.AfegirParticipantAProjecte(nom, DataBase.grupActiu, projecteId);
             panelParticipants.Children.Add(CrearEtiquetaParticipant(nom, "#2196F3", 0));
         }
 
@@ -258,7 +267,8 @@ namespace Kanban
             var wnd = new DesvincularParticipantWindow(participantsProjecte);
             if (wnd.ShowDialog() == true && !string.IsNullOrEmpty(wnd.ParticipantSeleccionat))
             {
-                _participantsService.DesvincularParticipant(wnd.ParticipantSeleccionat, DataBase.grupActiu);
+                var projecteId = _projecteActiuId > 0 ? _projecteActiuId : _projectesService.ObtenirProjecteActiuId(DataBase.grupActiu);
+                _participantsService.DesvincularParticipant(wnd.ParticipantSeleccionat, DataBase.grupActiu, projecteId);
                 TreureParticipantDelPanell(wnd.ParticipantSeleccionat);
                 MessageBox.Show($"S'ha desvinculat '{wnd.ParticipantSeleccionat}' del projecte.");
             }

@@ -61,13 +61,11 @@ namespace Kanban.Programs.cs
             return participants;
         }
 
-        public void AfegirParticipantAProjecte(string nom, int grupActiu)
+        public void AfegirParticipantAProjecte(string nom, int grupActiu, int? idProjecte)
         {
             using (var conn = DataBase.ObtenirConnexio())
             {
                 int? idUsuari = ObtenirIdUsuariPerNom(conn, nom, grupActiu);
-                int? idProjecte = ObtenirProjecteActiuId(conn, grupActiu);
-
                 if (!idUsuari.HasValue || !idProjecte.HasValue) return;
 
                 const string sql = "INSERT IGNORE INTO Usuaris_projectes (IdProjecte, IdUsuari) VALUES (@idProjecte, @idUsuari)";
@@ -80,13 +78,11 @@ namespace Kanban.Programs.cs
             }
         }
 
-        public void DesvincularParticipant(string nom, int grupActiu)
+        public void DesvincularParticipant(string nom, int grupActiu, int? idProjecte)
         {
             using (var conn = DataBase.ObtenirConnexio())
             {
                 int? idUsuari = ObtenirIdUsuariPerNom(conn, nom, grupActiu);
-                int? idProjecte = ObtenirProjecteActiuId(conn, grupActiu);
-
                 if (idUsuari.HasValue && idProjecte.HasValue)
                 {
                     const string sql = "DELETE FROM Usuaris_projectes WHERE IdProjecte = @idProjecte AND IdUsuari = @idUsuari";
@@ -100,6 +96,7 @@ namespace Kanban.Programs.cs
             }
         }
 
+        // Elimina un usuari i totes les seves relacions a la base de dades
         public void EliminarUsuari(string nom, int grupActiu)
         {
             using (var conn = DataBase.ObtenirConnexio())
@@ -107,9 +104,25 @@ namespace Kanban.Programs.cs
                 int? idUsuari = ObtenirIdUsuariPerNom(conn, nom, grupActiu);
                 if (!idUsuari.HasValue) return;
 
-                ExecutarComanda(conn, "DELETE FROM Usuaris_projectes WHERE IdUsuari = @id", idUsuari.Value);
-                ExecutarComanda(conn, "UPDATE Tasca SET IdUsuariResponsable = NULL WHERE IdUsuariResponsable = @id", idUsuari.Value);
-                ExecutarComanda(conn, "DELETE FROM Usuaris WHERE IdUsuari = @id", idUsuari.Value);
+                // 1. Posar a NULL les tasques on l'usuari és responsable
+                ExecutarComanda(conn, 
+                    "UPDATE Tasca SET IdUsuariResponsable = NULL WHERE IdUsuariResponsable = @id", 
+                    idUsuari.Value);
+
+                // 2. Posar a NULL els projectes on l'usuari és responsable (IdResponsable)
+                ExecutarComanda(conn, 
+                    "UPDATE Projectes SET IdResponsable = NULL WHERE IdResponsable = @id", 
+                    idUsuari.Value);
+
+                // 3. Eliminar de la taula Usuaris_projectes (participant de projectes)
+                ExecutarComanda(conn, 
+                    "DELETE FROM Usuaris_projectes WHERE IdUsuari = @id", 
+                    idUsuari.Value);
+
+                // 4. Finalment, eliminar l'usuari
+                ExecutarComanda(conn, 
+                    "DELETE FROM Usuaris WHERE IdUsuari = @id", 
+                    idUsuari.Value);
             }
         }
 
