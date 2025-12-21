@@ -6,34 +6,44 @@
         xmlns:local="clr-namespace:Kanban"
         mc:Ignorable="d"
         Title="LoginWindow" Height="300" Width="400">
+
+    <!-- LoginWindow: pantalla inicial per entrar al grup -->
+    <!-- L usuari introdueix Nom i Contrasenya (taula Grups) -->
+
     <Grid Margin="20">
 
+        <!-- Files del grid: titol + usuari + contrasenya -->
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Text="Inicia Sessió"
+        <!-- Titol -->
+        <TextBlock Text="Inicia Sessio"
                    FontSize="24"
                    FontWeight="Bold"
                    HorizontalAlignment="Center"/>
 
+        <!-- Camp usuari -->
         <StackPanel Grid.Row="1" Margin="0 20 0 0">
             <TextBlock Text="Usuari:"/>
             <TextBox x:Name="txtUsuari" Height="20"/>
         </StackPanel>
 
+        <!-- Camp contrasenya -->
         <StackPanel Grid.Row="2" Margin="0 20 0 0">
             <TextBlock Text="Contrasenya:"/>
             <PasswordBox x:Name="txtContrasenya" Height="20"/>
         </StackPanel>
 
+        <!-- Boto iniciar sessio -->
         <Button Grid.Row="2" Height="30" Width="120" Margin="18,80,0,46"
-                Content="Iniciar Sessió" Style="{StaticResource BotoBase}"
+                Content="Iniciar Sessio" Style="{StaticResource BotoBase}"
                 HorizontalAlignment="Left" Background="LightGray" Foreground="Black"
                 Click="BtnLogin_Click"/>
 
+        <!-- Boto cancelar -->
         <Button Grid.Row="2" Height="30" Width="120" Margin="0,80,20,46"
          Content="Cancelar" Style="{StaticResource BotoBase}"
          HorizontalAlignment="Right" Background="LightGray" Foreground="Black"

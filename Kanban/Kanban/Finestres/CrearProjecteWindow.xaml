@@ -5,6 +5,9 @@
         Height="250"
         Width="350">
 
+    <!-- CrearProjecteWindow: formulari per crear un nou projecte/sprint -->
+    <!-- Camps: titol + data fi + boto crear -->
+
     <Grid Margin="20">
         
         <Grid.RowDefinitions>
@@ -13,19 +16,19 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- TÍTOL -->
-        <TextBlock Text="Títol del projecte"/>
+        <!-- Titol del projecte -->
+        <TextBlock Text="Titol del projecte"/>
         <TextBox x:Name="txtTitol"
                  Margin="0,20,0,10"/>
 
-        <!-- DATA FI -->
+        <!-- Data fi del projecte -->
         <TextBlock Text="Data final"
                    Grid.Row="1"/>
         <DatePicker x:Name="dpDataFi"
                     Grid.Row="1"
                     Margin="0,20,0,0"/>
 
-        <!-- BOTÓ -->
+        <!-- Boto per executar la creacio (va a BtnCrear_Click) -->
         <Button Grid.Row="2" Style="{StaticResource BotoBase}"
                 Content="Crear"
                 Height="35" Background="LightGray" Foreground="Black"

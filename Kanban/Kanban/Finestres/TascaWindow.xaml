@@ -5,31 +5,41 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="TascaWindow" Height="500" Width="600">
+
+    <!-- TascaWindow: formulari per crear o editar una tasca -->
+    <!-- Camps: descripcio, responsable, prioritat, notes, data venciment, boto acceptar -->
+
     <Grid Margin="20">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/> <!-- Descripció -->
+            <RowDefinition Height="Auto"/> <!-- Descripcio -->
             <RowDefinition Height="Auto"/> <!-- Responsable -->
             <RowDefinition Height="Auto"/> <!-- Prioritat -->
             <RowDefinition Height="Auto"/> <!-- Notes -->
             <RowDefinition Height="Auto"/> <!-- Data venciment -->
-            <RowDefinition Height="*"/>    <!-- Botó -->
+            <RowDefinition Height="*"/>    <!-- Boto -->
         </Grid.RowDefinitions>
 
-        <TextBlock Text="Descripció:" Grid.Row="0"/>
+        <!-- Descripcio -->
+        <TextBlock Text="Descripcio:" Grid.Row="0"/>
         <TextBox x:Name="txtDescripcio" Grid.Row="0" Margin="0 20 0 10" Height="80"/>
 
+        <!-- Responsable -->
         <TextBlock Text="Responsable:" Grid.Row="1"/>
         <ComboBox x:Name="cmbParticipants" Grid.Row="1" Margin="0 20 0 10"/>
 
+        <!-- Prioritat -->
         <TextBlock Text="Prioritat:" Grid.Row="2"/>
         <ComboBox x:Name="cmbPrioritat" Grid.Row="2" Margin="0 20 0 10"/>
 
+        <!-- Notes -->
         <TextBlock Text="Nota:" Grid.Row="3"/>
         <TextBox x:Name="txtNotes" Grid.Row="3" Margin="0 20 0 10" Height="40"/>
 
+        <!-- Data venciment -->
         <TextBlock Text="Data venciment:" Grid.Row="4"/>
         <DatePicker x:Name="dpDataVenciment" Grid.Row="4" Margin="0 20 0 10"/>
 
+        <!-- Boto acceptar -->
         <Button Content="Acceptar" Style="{StaticResource BotoBase}"
                 Grid.Row="5" Background="LightGray" Foreground="Black"
                 HorizontalAlignment="Center"

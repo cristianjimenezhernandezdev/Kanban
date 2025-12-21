@@ -6,6 +6,10 @@
         xmlns:local="clr-namespace:Kanban"
         mc:Ignorable="d"
         Title="Obrir Projecte" Height="250" Width="350">
+
+    <!-- ObrirProjecte: finestra per seleccionar un projecte existent del grup -->
+    <!-- Mostra un ComboBox amb projectes i un boto per confirmar la seleccio -->
+
     <Grid Margin="20">
 
         <Grid.RowDefinitions>
@@ -14,14 +18,16 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- SELECCIONAR PROJECTE -->
+        <!-- Etiqueta -->
         <TextBlock Text="Seleccionar Projecte"
             Grid.Row="2" Margin="0,18,0,21"/>
+
+        <!-- Llista de projectes (s omple desde codi) -->
         <ComboBox x:Name="cmbSeleccionarProjectes"
              Grid.Row="2"
              Margin="0,60,0,-27"/>
 
-        <!-- BOTÓ -->
+        <!-- Boto seleccionar (va a BtnSeleccionar_Click) -->
         <Button Grid.Row="2"
          Content="Seleccionar"
          Height="35" Style="{StaticResource BotoBase}"

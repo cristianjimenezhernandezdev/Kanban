@@ -5,13 +5,19 @@ using MySql.Data.MySqlClient;
 
 namespace Kanban
 {
+    // Finestra per seleccionar un usuari del grup i retornar-lo al MainWindow.
+    // Aquesta finestra no elimina res directament: només retorna el nom.
+    // El MainWindow és qui demana confirmació i crida ParticipantsService.EliminarUsuari.
     public partial class EliminarUsuariWindow : Window
     {
+        // Nom de l'usuari seleccionat.
         public string UsuariSeleccionat { get; private set; }
 
         public EliminarUsuariWindow()
         {
             InitializeComponent();
+
+            // Carreguem els usuaris del grup al ComboBox.
             CarregarUsuaris();
         }
 
@@ -36,12 +42,14 @@ namespace Kanban
 
         private void BtnEliminar_Click(object sender, RoutedEventArgs e)
         {
+            // Validació: cal seleccionar un usuari.
             if (cmbUsuaris.SelectedItem == null)
             {
                 MessageBox.Show("Selecciona un usuari.");
                 return;
             }
 
+            // Guardem el nom seleccionat i tanquem amb OK.
             UsuariSeleccionat = cmbUsuaris.SelectedItem.ToString();
             DialogResult = true;
             Close();
@@ -49,6 +57,7 @@ namespace Kanban
 
         private void BtnCancelar_Click(object sender, RoutedEventArgs e)
         {
+            // Tanquem sense eliminar res.
             DialogResult = false;
             Close();
         }

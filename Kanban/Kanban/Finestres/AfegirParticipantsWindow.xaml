@@ -7,6 +7,9 @@
         mc:Ignorable="d"
         Title="Afegir Participant" Height="250" Width="350">
 
+    <!-- AfegirParticipantsWindow: formulari per crear un nou usuari del grup -->
+    <!-- Camps: nom + cognom + boto afegir -->
+
     <Grid Margin="20">
 
         <Grid.RowDefinitions>
@@ -15,12 +18,15 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
+        <!-- Camp nom -->
         <TextBlock Text="Nom:"/>
         <TextBox x:Name="txtNom" Grid.Row="0" Margin="0 20 0 10"/>
 
+        <!-- Camp cognom -->
         <TextBlock Text="Cognom:" Grid.Row="1"/>
         <TextBox x:Name="txtCognom" Grid.Row="1" Margin="0 20 0 10"/>
 
+        <!-- Boto afegir (va a btnAfegir_Click) -->
         <Button Grid.Row="2" Style="{StaticResource BotoBase}"
                 Content="Afegir" Background="LightGray" Foreground="Black"
                 Width="120" Height="35"
