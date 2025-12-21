@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:Kanban"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
-        Title="MainWindow" Height="600" Width="1000">
+        Title="MainWindow" Height="680" Width="1240"
+        MinHeight="680" MinWidth="1100">
 
     <Window.Resources>
         <SolidColorBrush x:Key="PrioritatAlta" Color="#E53935"/>
@@ -69,7 +70,7 @@
 
         <!-- FILES PRINCIPALS -->
         <Grid.RowDefinitions>
-            <RowDefinition Height="120"/>
+            <RowDefinition Height="135"/>
             <!-- CAPÇALERA -->
             <RowDefinition Height="*"/>
             <!-- COLUMNES -->
@@ -84,7 +85,7 @@
         </Grid.ColumnDefinitions>
 
 
-        <!-- 🔷 CAPÇALERA -->
+        <!-- CAPÇALERA -->
         <Border Grid.Row="0" Grid.ColumnSpan="4"
                 CornerRadius="10"
                 Background="#E8F4FF"
@@ -95,52 +96,79 @@
 
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2*"/>
-                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="2.1*"/>
+                    <ColumnDefinition Width="3.2*"/>
                     <ColumnDefinition Width="1*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- 🟦 NOM SPRINT + MASTER -->
-                <StackPanel Grid.Column="0">
+                <!-- NOM SPRINT + DATA + MASTER -->
+                <StackPanel Grid.Column="0" VerticalAlignment="Top">
                     <TextBlock x:Name="txtSprintName"
-                               Margin="10"
+                               Margin="10,0,10,0"
                                Text="Nom Sprint"
                                FontSize="28"
                                FontWeight="Bold"
                                Foreground="#2F80ED"/>
+                    <TextBlock x:Name="txtSprintData"
+                               Margin="10,0,10,6"
+                               Text=""
+                               FontSize="12"
+                               Foreground="#888"/>
 
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Sprint Master  "
-                                VerticalAlignment="Center"
-                                FontSize="14"
-                                Foreground="#555"/>
+                    <Grid Margin="10,0,10,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="170"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Sprint Master"
+                                   Grid.Column="0"
+                                   VerticalAlignment="Center"
+                                   FontSize="14"
+                                   Foreground="#555"
+                                   Margin="0,0,10,0"/>
 
                         <ComboBox x:Name="cmbSprintMaster"
-                                Width="150"
-                                FontSize="14"
-                                Foreground="#2F80ED"
-                                SelectionChanged="cmbSprintMaster_SelectionChanged"/>
-                    </StackPanel>
+                                  Grid.Column="1"
+                                  Height="26"
+                                  FontSize="14"
+                                  Foreground="#2F80ED"
+                                  SelectionChanged="cmbSprintMaster_SelectionChanged"/>
+
+                        <Label x:Name="lblSprintMasterActual"
+                               Grid.Column="2"
+                               Content=""
+                               FontSize="14"
+                               Foreground="#2F80ED"
+                               VerticalAlignment="Center"
+                               Padding="0"
+                               Margin="10,0,0,0"/>
+                    </Grid>
                 </StackPanel>
 
 
-                <!-- 🟡 PARTICIPANTS -->
+                <!-- PARTICIPANTS -->
                 <StackPanel Grid.Column="1" Margin="10 0 0 0">
 
-                    <StackPanel Orientation="Horizontal">
+                    <WrapPanel VerticalAlignment="Top" Margin="0,0,0,4">
                         <TextBlock Text="Participants  "
-                                    FontSize="16"
-                                    FontWeight="SemiBold"/>
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,6,0"/>
 
                         <ComboBox x:Name="cmbParticipants"
-                            Width="150"
-                            FontSize="14"
-                            Foreground="#2F80ED"
-                            SelectionChanged="cmbParticipants_SelectionChanged"/>
+                                  Width="240"
+                                  Height="26"
+                                  FontSize="14"
+                                  Foreground="#2F80ED"
+                                  SelectionChanged="cmbParticipants_SelectionChanged"
+                                  Margin="0,0,6,0"/>
 
                         <Button Content="+"
                                 Width="25" Height="25"
-                                Margin="5 0 0 0"
+                                Margin="0 0 6 0"
                                 Background="#4CAF50"
                                 Foreground="White"
                                 BorderBrush="#2E7D32"
@@ -149,7 +177,7 @@
 
                         <Button Content="✕"
                                 Width="25" Height="25"
-                                Margin="5 0 0 0"
+                                Margin="0 0 6 0"
                                 Background="#FF9800"
                                 Foreground="White"
                                 BorderBrush="#F57C00"
@@ -158,60 +186,54 @@
 
                         <Button Content="-"
                                 Width="25" Height="25"
-                                Margin="5 0 0 0"
+                                Margin="0 0 12 0"
                                 Background="#F44336"
                                 Foreground="White"
                                 BorderBrush="#D32F2F"
                                 ToolTip="Esborrar usuari de la base de dades"
                                 Click="BtnEliminarUsuari_Click"/>
-                        
+
                         <Button Content="Afegir Tasca"
-                                Width="100" Height="25"
-                                Margin="15 0 0 0"
+                                Width="130" Height="25"
+                                Margin="0 0 0 0"
                                 Background="#3498db"
                                 Foreground="White"
                                 BorderBrush="#2C6A99"
                                 ToolTip="Afegir tasca al Backlog"
                                 Click="btnAddBacklog_Click"/>
-                    </StackPanel>
+                    </WrapPanel>
 
-                    <!-- Aquí afegirem visualment els participants -->
                     <WrapPanel x:Name="panelParticipants"
-                                Margin="0 5 0 0"/>
+                               Margin="0 4 0 0"/>
                 </StackPanel>
 
-                <!-- 🟣 BOTÓ "CREAR PROJECTE" -->
-                <Button x:Name="btnCrearProjecte" Style="{StaticResource BotoBase}"
+                <!-- BOTONS PROJECTE -->
+                <StackPanel Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Button x:Name="btnCrearProjecte" Style="{StaticResource BotoBase}"
                             Content="Crear Sprint"
-                            Width="80" Background="LightGray" Foreground="Black"
-                            Height="25" BorderBrush="SkyBlue"
-                            Grid.Column="2"
+                            Width="90" Background="LightGray" Foreground="Black"
+                            Height="26" BorderBrush="SkyBlue"
                             HorizontalAlignment="Right"
-                            VerticalAlignment="Top"
+                            Margin="0,0,0,6"
                             Click="btnCrearProjecte_Click"/>
 
-                <!-- 🟣 BOTÓ "INFO" -->
-                <Button x:Name="btnInfo" Style="{StaticResource BotoBase}"
-                        Content="Info" Background="SkyBlue" Foreground="Black"
-                        Width="80"
-                        Height="25" Grid.Column="2"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Center"
-                        Click="btnInfo_Click"/>
+                    <Button x:Name="btnInfo" Style="{StaticResource BotoBase}"
+                            Content="Info" Background="SkyBlue" Foreground="Black"
+                            Width="90"
+                            Height="26"
+                            HorizontalAlignment="Right"
+                            Margin="0,0,0,6"
+                            Click="btnInfo_Click"/>
 
-                <Button x:Name="btnObrirProjecte" Style="{StaticResource BotoBase}"
-                        Content="Obrir Sprint"
-                        Width="80" BorderBrush="SkyBlue"
-                        Height="25"  Background="LightGray" Foreground="Black"
-                        Grid.Column="2"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Bottom"
-                        Click="btnObrirProjecte_Click"/>
+                    <Button x:Name="btnObrirProjecte" Style="{StaticResource BotoBase}"
+                            Content="Obrir Sprint"
+                            Width="90" BorderBrush="SkyBlue"
+                            Height="26" Background="LightGray" Foreground="Black"
+                            HorizontalAlignment="Right"
+                            Click="btnObrirProjecte_Click"/>
+                </StackPanel>
             </Grid>
         </Border>
-
-
-
 
         <!-- 🔵 BACKLOG -->
         <GroupBox Header="Backlog"
@@ -226,8 +248,6 @@
                         ItemTemplate="{StaticResource TascaItemTemplate}"/>
         </GroupBox>
 
-
-
         <!-- 🟠 TODO -->
         <GroupBox Header="To Do"
                     Grid.Row="1" Grid.Column="1" Margin="5">
@@ -241,8 +261,6 @@
                         ItemTemplate="{StaticResource TascaItemTemplate}"/>
         </GroupBox>
 
-
-
         <!-- 🟣 DOING -->
         <GroupBox Header="Doing"
                     Grid.Row="1" Grid.Column="2" Margin="5">
@@ -255,7 +273,6 @@
                         SelectionMode="Single"
                         ItemTemplate="{StaticResource TascaItemTemplate}"/>
         </GroupBox>
-
 
         <!-- 🟢 DONE -->
         <GroupBox Header="Done"

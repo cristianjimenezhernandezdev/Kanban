@@ -24,6 +24,9 @@ namespace Kanban
         private readonly ConsultesTasquesService _tasquesService;
         private int _projecteActiuId;
 
+        // Flag per evitar que els events SelectionChanged s'executin quan carreguem dades
+        private bool _carregantDades = false;
+
         #endregion
 
         #region Constructor
@@ -81,11 +84,19 @@ namespace Kanban
         {
             var titol = _projectesService.ObtenirTitolProjecteActiu(DataBase.grupActiu);
             var data = _projectesService.ObtenirDataProjecteActiu(DataBase.grupActiu);
-            if (titol != null)
-                txtSprintName.Text = $"{titol} {data}";
             
-
-
+            // Titol al TextBlock principal
+            txtSprintName.Text = titol ?? string.Empty;
+            
+            // Data al TextBlock separat, sota el titol
+            if (!string.IsNullOrEmpty(data))
+            {
+                txtSprintData.Text = $"Data fi: {data}";
+            }
+            else
+            {
+                txtSprintData.Text = string.Empty;
+            }
         }
 
 
@@ -95,9 +106,13 @@ namespace Kanban
 
             var idProjecte = _projectesService.ObtenirProjecteActiuId(DataBase.grupActiu);
             _projecteActiuId = idProjecte;
-            
+
             if (idProjecte > 0)
             {
+                // Actualitzar Sprint Master del projecte actiu
+                var idResponsable = _projectesService.ObtenirIdResponsableProjecte(idProjecte);
+                ActualitzarSprintMasterUI(idResponsable);
+
                 // Carregar els participants vinculats al projecte actiu
                 CarregarParticipantsProjecte(idProjecte);
                 CarregarTasquesProjecteSeleccionat(idProjecte);
@@ -131,7 +146,8 @@ namespace Kanban
                 return;
             }
 
-            var w = new TascaWindow(participantsProjecte, null, 1);
+            // Passar l'idProjecte actiu a TascaWindow
+            var w = new TascaWindow(participantsProjecte, null, 1, _projecteActiuId);
             if (w.ShowDialog() == true && w.TascaResultant != null)
             {
                 Backlog.Add(w.TascaResultant);
@@ -147,7 +163,8 @@ namespace Kanban
             if (tasca == null) return;
 
             var participantsProjecte = ObtenirParticipantsProjecte();
-            var dialog = new TascaWindow(participantsProjecte, tasca, tasca.IdColumna);
+            // Passar l'idProjecte actiu a TascaWindow
+            var dialog = new TascaWindow(participantsProjecte, tasca, tasca.IdColumna, _projecteActiuId);
 
             if (dialog.ShowDialog() == true)
             {
@@ -210,12 +227,25 @@ namespace Kanban
 
         private void ActualitzarSprintMasterUI(int? idResponsable)
         {
-            cmbSprintMaster.SelectedItem = null;
-            if (!idResponsable.HasValue) return;
+            _carregantDades = true; // Evitar que dispari l'event SelectionChanged
+            try
+            {
+                cmbSprintMaster.SelectedItem = null;
+                if (!idResponsable.HasValue)
+                {
+                    lblSprintMasterActual.Content = "";
+                    return;
+                }
 
-            var nom = _projectesService.ObtenirNomResponsable(idResponsable);
-            if (nom != null && cmbSprintMaster.Items.Contains(nom))
-                cmbSprintMaster.SelectedItem = nom;
+                var nom = _projectesService.ObtenirNomResponsable(idResponsable);
+                lblSprintMasterActual.Content = nom ?? "";
+                if (nom != null && cmbSprintMaster.Items.Contains(nom))
+                    cmbSprintMaster.SelectedItem = nom;
+            }
+            finally
+            {
+                _carregantDades = false;
+            }
         }
 
         #endregion
@@ -254,10 +284,21 @@ namespace Kanban
 
         private void cmbSprintMaster_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            // Si estem carregant dades, no fer res
+            if (_carregantDades) return;
             if (cmbSprintMaster.SelectedItem == null) return;
+            if (_projecteActiuId <= 0) return;
 
             var nomUsuari = cmbSprintMaster.SelectedItem.ToString();
-            _projectesService.ActualitzarSprintMaster(nomUsuari, DataBase.grupActiu);
+
+            _projectesService.ActualitzarSprintMaster(nomUsuari, DataBase.grupActiu, _projecteActiuId);
+
+            // refrescar des de la BDD per confirmar què s'ha guardat
+            var idResponsable = _projectesService.ObtenirIdResponsableProjecte(_projecteActiuId);
+            
+            _carregantDades = true;
+            lblSprintMasterActual.Content = _projectesService.ObtenirNomResponsable(idResponsable) ?? "";
+            _carregantDades = false;
         }
 
         private void BtnDesvincularParticipant_Click(object sender, RoutedEventArgs e)

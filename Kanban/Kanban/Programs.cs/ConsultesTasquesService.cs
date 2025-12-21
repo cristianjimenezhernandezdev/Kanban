@@ -83,15 +83,15 @@ namespace Kanban.Programs.cs
             }
         }
 
-        public int InserirTasca(Tasques tasca, int grupActiu)
+        public int InserirTasca(Tasques tasca, int grupActiu, int idProjecte)
         {
             using (var conn = DataBase.ObtenirConnexio())
             {
-                int? idProjecte = ObtenirProjecteActiuId(conn, grupActiu);
-                if (!idProjecte.HasValue)
+                // Utilitzem l'idProjecte que ens passen, no el busquem
+                if (idProjecte <= 0)
                     throw new InvalidOperationException("No hi ha cap projecte actiu.");
 
-                tasca.IdProjecte = idProjecte.Value;
+                tasca.IdProjecte = idProjecte;
                 int? idUsuariResponsable = string.IsNullOrEmpty(tasca.Responsable)
                     ? (int?)null
                     : ObtenirIdUsuariPerNom(conn, tasca.Responsable, grupActiu);

@@ -53,6 +53,7 @@ namespace Kanban
 
             // Obrir MainWindow
             var mw = new MainWindow();
+            Application.Current.MainWindow = mw;
             mw.Show();
             this.Close();
         }

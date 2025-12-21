@@ -23,17 +23,20 @@ namespace Kanban
         private readonly Tasques _tascaOriginal;
         // Columna del kanban on s'afegirà la tasca nova per defecte
         private readonly byte _columnaPerDefecte;
+        // Id del projecte on s'afegira la tasca
+        private readonly int _idProjecte;
         // Servei que fa les consultes de base de dades per a les tasques
         private readonly ConsultesTasquesService _tasquesService;
 
         private DateTime dataVencimentPerDefecte = DateTime.Today;
 
-        // Constructor principal que rep la llista de participants, la tasca a editar (opcional) i la columna per defecte
-        public TascaWindow(List<string> participants, Tasques tasca = null, byte columnaPerDefecte = 1)
+        // Constructor principal que rep la llista de participants, la tasca a editar (opcional), la columna per defecte i l'id del projecte
+        public TascaWindow(List<string> participants, Tasques tasca, byte columnaPerDefecte, int idProjecte)
         {
             InitializeComponent();
 
             _tasquesService = new ConsultesTasquesService();
+            _idProjecte = idProjecte;
             // Omplim els desplegables amb participants i nivells de prioritat
             cmbParticipants.ItemsSource = participants;
             cmbPrioritat.ItemsSource = new[] { "Alta", "Mitja", "Baixa" };
@@ -65,7 +68,7 @@ namespace Kanban
         }
 
         // Constructor buit per compatibilitat XAML
-        public TascaWindow() : this(new List<string>()) { }
+        public TascaWindow() : this(new List<string>(), null, 1, 0) { }
 
         // Botó Acceptar: valida el formulari, crea oactualitza la tasca i tanca la finestra
         private void BtnAceptar_Click(object sender, RoutedEventArgs e)
@@ -137,14 +140,14 @@ namespace Kanban
 
             try
             {
-                // Inserim la tasca a la BDD i rebem el seu Id
-                nova.IdTasca = _tasquesService.InserirTasca(nova, DataBase.grupActiu);
+                // Inserim la tasca a la BDD amb l'idProjecte correcte
+                nova.IdTasca = _tasquesService.InserirTasca(nova, DataBase.grupActiu, _idProjecte);
                 TascaResultant = nova;
                 return true;
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error al guardar la tasca Gamba!: " + ex.Message);
+                MessageBox.Show("Error al guardar la tasca: Gamba!" + ex.Message);
                 return false;
             }
         }
